@@ -56,7 +56,11 @@ final class KeypairService
             ->where('user_id', $user->id)
             ->where('algorithm', $algorithm)
             ->oldest('id')
-            ->first();
+            ->get()
+            ->first(fn (CryptoKeypair $keypair): bool => ! str_contains(
+                (string) $keypair->private_key_encrypted,
+                'ENCRYPTED PRIVATE KEY',
+            ));
 
         if ($existing !== null) {
             return $existing;

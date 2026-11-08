@@ -60,8 +60,13 @@ if [ ! -f public/build/manifest.json ]; then
     npm run build
 fi
 
-log "Limpiando cachés de Laravel"
-php artisan optimize:clear >/dev/null 2>&1 || true
+if grep -q '^APP_ENV=production' .env; then
+    log "Optimizando cachés de Laravel para producción"
+    php artisan optimize >/dev/null 2>&1 || true
+else
+    log "Limpiando cachés de Laravel"
+    php artisan optimize:clear >/dev/null 2>&1 || true
+fi
 
 log "Ejecutando migraciones"
 php artisan migrate --force

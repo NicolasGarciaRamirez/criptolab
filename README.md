@@ -73,7 +73,7 @@ El primer arranque puede tardar varios minutos. El `entrypoint.sh` del contenedo
 3. Instala dependencias de Composer y Node si faltan.
 4. Compila assets con Vite si falta el manifest.
 5. Ejecuta migraciones.
-6. Siembra datos de demostración de forma idempotente (`AUTO_SEED=true`).
+6. Siembra datos de demostración de forma idempotente (`AUTO_SEED=true` en el `.env` raíz).
 
 Abre:
 
@@ -160,7 +160,7 @@ También puede usarse `docker compose exec app php artisan ...`.
 | Asimétrico | Híbrido RSA + AES-256-GCM | `app/Services/Crypto/Asymmetric/HybridEncryption.php` |
 | Firma | RSA-SHA256 | `app/Services/Crypto/Asymmetric/RsaSigner.php` |
 | Firma | Ed25519 | `app/Services/Crypto/Asymmetric/Ed25519Signer.php` |
-| Hash | SHA-256, SHA-512, SHA3-256, BLAKE2b-512 | `app/Services/Crypto/Hash/HashService.php` |
+| Hash | SHA-256, SHA-512, SHA3-256, BLAKE2b-512 (Sodium) | `app/Services/Crypto/Hash/HashService.php` |
 | Hash | HMAC-SHA256 | `app/Services/Crypto/Hash/HashService.php` |
 | Contraseñas | bcrypt, Argon2id | `app/Services/Crypto/Hash/PasswordHasher.php` y `HashService.php` |
 | Derivación | PBKDF2-SHA256, Argon2id | `app/Services/Crypto/KeyDerivationService.php` |
@@ -367,7 +367,7 @@ Limitación educativa: el proyecto no incluye una herramienta automática de re-
 1. `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://...`.
 2. Contraseña de PostgreSQL robusta y distinta de la de ejemplo.
 3. `SESSION_SECURE_COOKIE=true`, `SESSION_ENCRYPT=true`, `HASH_DRIVER=argon2id`.
-4. `AUTO_SEED=false` y eliminar/rotar credenciales demo.
+4. `AUTO_SEED=false` en el `.env` raíz y eliminar/rotar credenciales demo.
 5. Respaldar `APP_KEY`, `CRYPTO_MASTER_KEY` y `CRYPTO_BLIND_INDEX_KEY` en un gestor de secretos.
 6. Configurar HTTPS, proxy de confianza y HSTS.
 7. Ejecutar `php artisan config:cache route:cache view:cache`.

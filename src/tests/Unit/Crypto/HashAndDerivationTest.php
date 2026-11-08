@@ -17,6 +17,17 @@ class HashAndDerivationTest extends TestCase
         $this->assertSame('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', $result['hex']);
     }
 
+    public function test_all_digest_algorithms_produce_expected_lengths(): void
+    {
+        $service = app(HashService::class);
+
+        foreach ($service->available() as $id => $config) {
+            $result = $service->digest($id, 'CriptoLab');
+
+            $this->assertSame($config['bytes'] * 2, strlen($result['hex']), $id);
+        }
+    }
+
     public function test_hmac_sha256_known_vector(): void
     {
         $key = str_repeat(chr(0x0B), 20);

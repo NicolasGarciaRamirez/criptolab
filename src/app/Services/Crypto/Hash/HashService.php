@@ -16,7 +16,7 @@ final class HashService
         'sha256' => ['label' => 'SHA-256', 'hash' => 'sha256', 'bytes' => 32],
         'sha512' => ['label' => 'SHA-512', 'hash' => 'sha512', 'bytes' => 64],
         'sha3-256' => ['label' => 'SHA3-256', 'hash' => 'sha3-256', 'bytes' => 32],
-        'blake2b512' => ['label' => 'BLAKE2b-512', 'hash' => 'blake2b512', 'bytes' => 64],
+        'blake2b512' => ['label' => 'BLAKE2b-512', 'hash' => 'sodium-generichash', 'bytes' => 64],
     ];
 
     /**
@@ -33,7 +33,9 @@ final class HashService
     public function digest(string $algorithm, string $text): array
     {
         $config = $this->algorithm($algorithm);
-        $raw = hash($config['hash'], $text, true);
+        $raw = $config['hash'] === 'sodium-generichash'
+            ? sodium_crypto_generichash($text, '', $config['bytes'])
+            : hash($config['hash'], $text, true);
 
         return [
             'algorithm' => $algorithm,

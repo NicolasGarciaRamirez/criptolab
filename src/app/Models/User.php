@@ -30,6 +30,13 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'role' => 'user',
+    ];
+
+    /**
      * @var list<string>
      */
     protected $hidden = [
