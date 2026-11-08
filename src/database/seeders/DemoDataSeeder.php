@@ -14,7 +14,7 @@ class DemoDataSeeder extends Seeder
             return;
         }
 
-        $user = User::where('username', 'demo')->first();
+        $user = User::where('username', 'nicolas.garcia')->first();
 
         if ($user === null || $user->cryptoDemoEntries()->exists()) {
             return;

@@ -34,7 +34,7 @@ class DemoUserSeeder extends Seeder
                 'password' => 'Nicolas1234!',
                 'role' => UserRole::User,
                 'email_verified_at' => now()
-            ],
-        );
+            ])->save();
+        
     }
 }

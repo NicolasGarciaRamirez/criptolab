@@ -98,9 +98,9 @@ y ejecuta de nuevo `docker compose up -d`.
 | Rol | Usuario | Contraseña | Email |
 |---|---|---|---|
 | Administrador | `admin` | `Admin1234!` | `admin@criptolab.test` |
-| Estudiante | `demo` | `Demo1234!` | `demo@criptolab.test` |
+| Estudiante | `nicolas.garcia` | `Nicolas1234!` | `nicolas.garcia@areandina.edu.co` |
 
-`demo` tiene dos registros precargados en la pantalla 5.4. Se recomienda cambiar estas claves si el entorno deja de ser local.
+`nicolas.garcia` tiene dos registros precargados en la pantalla 5.4. Se recomienda cambiar estas claves si el entorno deja de ser local.
 
 ---
 
@@ -291,7 +291,7 @@ Las pruebas usan SQLite en memoria y fuerzan su propia configuración en `phpuni
 ### Captura 1 — formulario con texto en claro
 
 1. Ejecuta `docker compose up -d --build` y abre <http://localhost:8080>.
-2. Inicia sesión como `demo` / `Demo1234!`.
+2. Inicia sesión como `nicolas.garcia` / `Nicolas1234!`.
 3. Ve a **Laboratorio → Formulario de autenticación cifrado** (`/lab/autenticacion-cifrada`).
 4. Escribe, por ejemplo:
    - Usuario: `ana.estudiante`
