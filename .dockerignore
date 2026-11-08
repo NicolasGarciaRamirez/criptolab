@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+docker/postgres/data
+src/vendor
+src/node_modules
+src/.env
+src/public/build
+src/public/hot
+src/storage/logs
+src/storage/framework
+src/database/database.sqlite
