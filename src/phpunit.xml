@@ -19,6 +19,8 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing" force="true"/>
+        <env name="APP_LOCALE" value="es" force="true"/>
+        <env name="APP_TIMEZONE" value="America/Bogota" force="true"/>
         <env name="APP_KEY" value="base64:fa4DLP/3JJ+YhUcGn7tnpWAScpHYG0HVX9sxwfz+wRo=" force="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4" force="true"/>
@@ -44,6 +46,10 @@
         <env name="MAIL_MAILER" value="array" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
+        <env name="SESSION_ENCRYPT" value="true" force="true"/>
+        <env name="SESSION_SECURE_COOKIE" value="false" force="true"/>
+        <env name="SESSION_HTTP_ONLY" value="true" force="true"/>
+        <env name="SESSION_SAME_SITE" value="lax" force="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

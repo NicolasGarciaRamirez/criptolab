@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Crypto\AsymmetricController;
 use App\Http\Controllers\Crypto\AuthDemoController;
 use App\Http\Controllers\Crypto\HashController;
@@ -80,6 +82,14 @@ Route::middleware(['auth', 'verified'])
             ->whereNumber('id')->name('keypairs.public');
         Route::delete('/llaves/{id}', [KeypairController::class, 'destroy'])
             ->whereNumber('id')->name('keypairs.destroy');
+    });
+
+Route::middleware(['auth', 'verified', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
+        Route::get('/auditoria', [AuditLogController::class, 'index'])->name('audit.index');
     });
 
 require __DIR__.'/auth.php';

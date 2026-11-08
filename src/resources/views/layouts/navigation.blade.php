@@ -22,8 +22,11 @@
                         Llaves
                     </x-nav-link>
                     @if (Auth::user()->isAdmin() && Route::has('admin.users.index'))
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
-                            Administración
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                            Usuarios
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.audit.index')" :active="request()->routeIs('admin.audit.*')">
+                            Auditoría
                         </x-nav-link>
                     @endif
                 </div>
@@ -80,7 +83,8 @@
             <x-responsive-nav-link :href="route('crypto.history')" :active="request()->routeIs('crypto.history')">Historial</x-responsive-nav-link>
             <x-responsive-nav-link :href="route('crypto.keypairs.index')" :active="request()->routeIs('crypto.keypairs.*')">Mis llaves</x-responsive-nav-link>
             @if (Auth::user()->isAdmin() && Route::has('admin.users.index'))
-                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">Administración</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">Usuarios</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.audit.index')" :active="request()->routeIs('admin.audit.*')">Auditoría</x-responsive-nav-link>
             @endif
         </div>
 
