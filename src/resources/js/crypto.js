@@ -510,4 +510,43 @@ document.addEventListener('alpine:init', () => {
 
         copied: '',
     }));
+
+    window.Alpine.data('authDemoPage', (config) => ({
+        decryptTemplate: config.decryptTemplate ?? '',
+        decryptingId: null,
+        decrypted: null,
+        error: '',
+        copied: '',
+        statusMessage: '',
+
+        async decrypt(id) {
+            this.decryptingId = id;
+            this.decrypted = null;
+            this.error = '';
+            this.statusMessage = '';
+
+            try {
+                const url = this.decryptTemplate.replace('__ID__', String(id));
+                this.decrypted = await CryptoLab.post(url, {});
+            } catch (error) {
+                this.error = error.message;
+            } finally {
+                this.decryptingId = null;
+            }
+        },
+
+        async copy(value, label = 'valor') {
+            try {
+                await CryptoLab.copy(value);
+                this.copied = label;
+                setTimeout(() => {
+                    if (this.copied === label) {
+                        this.copied = '';
+                    }
+                }, 1500);
+            } catch {
+                this.error = 'No se pudo copiar al portapapeles.';
+            }
+        },
+    }));
 });

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Crypto\AsymmetricController;
+use App\Http\Controllers\Crypto\AuthDemoController;
 use App\Http\Controllers\Crypto\HashController;
 use App\Http\Controllers\Crypto\KeypairController;
 use App\Http\Controllers\Crypto\LabController;
@@ -63,6 +64,15 @@ Route::middleware(['auth', 'verified'])
             ->middleware('throttle:20,1')->name('hash.password');
         Route::post('/hash/password/verificar', [HashController::class, 'verifyPassword'])
             ->middleware('throttle:30,1')->name('hash.password.verify');
+
+        Route::get('/autenticacion-cifrada', [AuthDemoController::class, 'index'])->name('auth-demo');
+        Route::post('/autenticacion-cifrada', [AuthDemoController::class, 'store'])
+            ->middleware('throttle:30,1')->name('auth-demo.store');
+        Route::get('/autenticacion-cifrada/exportar', [AuthDemoController::class, 'export'])->name('auth-demo.export');
+        Route::post('/autenticacion-cifrada/{entry}/descifrar', [AuthDemoController::class, 'decrypt'])
+            ->whereNumber('entry')->middleware('throttle:30,1')->name('auth-demo.decrypt');
+        Route::delete('/autenticacion-cifrada/{entry}', [AuthDemoController::class, 'destroy'])
+            ->whereNumber('entry')->name('auth-demo.destroy');
 
         Route::get('/historial', [LabController::class, 'history'])->name('history');
         Route::get('/llaves', [KeypairController::class, 'index'])->name('keypairs.index');
