@@ -16,6 +16,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
         ]);
+
+        // Los datos criptográficos deben conservarse byte a byte.
+        $middleware->trimStrings(except: [
+            'plaintext',
+            'text',
+            'message',
+            'key',
+            'hash',
+            'signature',
+            'payload',
+            'public_key',
+            'private_key',
+            'salt',
+            'passphrase',
+            'expected',
+            'ciphertext',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontFlash([
