@@ -3,8 +3,10 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Services\Crypto\BlindIndexService;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -14,12 +16,10 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_password_link_screen_can_be_rendered(): void
     {
-        $response = $this->get('/forgot-password');
-
-        $response->assertStatus(200);
+        $this->get('/forgot-password')->assertOk();
     }
 
-    public function test_reset_password_link_can_be_requested(): void
+    public function test_reset_password_link_can_be_requested_with_encrypted_email(): void
     {
         Notification::fake();
 
@@ -28,6 +28,14 @@ class PasswordResetTest extends TestCase
         $this->post('/forgot-password', ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
+
+        $token = DB::table('password_reset_tokens')->first();
+        $this->assertNotNull($token);
+        $this->assertSame(
+            app(BlindIndexService::class)->hash($user->email),
+            $token->email,
+        );
+        $this->assertNotSame($user->email, $token->email);
     }
 
     public function test_reset_password_screen_can_be_rendered(): void
@@ -39,9 +47,7 @@ class PasswordResetTest extends TestCase
         $this->post('/forgot-password', ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
-
-            $response->assertStatus(200);
+            $this->get('/reset-password/'.$notification->token)->assertOk();
 
             return true;
         });
@@ -59,8 +65,8 @@ class PasswordResetTest extends TestCase
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
+                'password' => 'Password123!',
+                'password_confirmation' => 'Password123!',
             ]);
 
             $response
@@ -69,5 +75,10 @@ class PasswordResetTest extends TestCase
 
             return true;
         });
+
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'password_reset',
+        ]);
     }
 }

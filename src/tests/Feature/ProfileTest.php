@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -14,11 +15,7 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->get('/profile');
-
-        $response->assertOk();
+        $this->actingAs($user)->get('/profile')->assertOk();
     }
 
     public function test_profile_information_can_be_updated(): void
@@ -29,7 +26,9 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
+                'username' => 'test.user',
                 'email' => 'test@example.com',
+                'phone' => '+57 300 000 0000',
             ]);
 
         $response
@@ -39,18 +38,29 @@ class ProfileTest extends TestCase
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
+        $this->assertSame('test.user', $user->username);
         $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('+57 300 000 0000', $user->phone);
         $this->assertNull($user->email_verified_at);
+
+        $raw = DB::table('users')->where('id', $user->id)->first();
+        $this->assertNotSame('test@example.com', $raw->email);
+        $this->assertNotSame('+57 300 000 0000', $raw->phone);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'profile_updated',
+        ]);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_email_verification_status_is_unchanged_when_email_is_unchanged(): void
     {
         $user = User::factory()->create();
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
+                'name' => $user->name,
+                'username' => $user->username,
                 'email' => $user->email,
             ]);
 
@@ -77,6 +87,9 @@ class ProfileTest extends TestCase
 
         $this->assertGuest();
         $this->assertNull($user->fresh());
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'account_deleted',
+        ]);
     }
 
     public function test_correct_password_must_be_provided_to_delete_account(): void

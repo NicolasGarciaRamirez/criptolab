@@ -7,14 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecuta la migración.
      */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('username', 50)->unique();
+            $table->text('email');
+            $table->string('email_hash', 64)->unique();
+            $table->string('role', 20)->default('user');
+            $table->text('phone')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
@@ -22,7 +26,9 @@ return new class extends Migration
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
+            // Una columna llamada email almacena el hash ciego (HMAC-SHA256),
+            // nunca el correo en claro. El token repository personalizado lo gestiona.
+            $table->string('email', 64)->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
@@ -38,7 +44,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte la migración.
      */
     public function down(): void
     {

@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\Audit\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(private readonly AuditService $audit)
+    {
+    }
+
     /**
      * Display the user's profile form.
      */
@@ -26,13 +32,25 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $data = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $emailChanged = Str::lower((string) $user->email) !== Str::lower((string) $data['email']);
+
+        // Evita re-cifrar el email con una IV nueva si el valor no cambió.
+        if (! $emailChanged) {
+            unset($data['email']);
         }
 
-        $request->user()->save();
+        $user->fill($data);
+
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        $this->audit->log($user, 'profile_updated', 'Perfil actualizado');
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -47,6 +65,8 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        $this->audit->log($user, 'account_deleted', 'Cuenta eliminada');
 
         Auth::logout();
 

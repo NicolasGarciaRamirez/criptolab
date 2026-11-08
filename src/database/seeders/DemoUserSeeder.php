@@ -33,7 +33,7 @@ class DemoUserSeeder extends Seeder
                 'email' => 'nicolas.garcia@areandina.edu.co',
                 'password' => 'Nicolas1234!',
                 'role' => UserRole::User,
-                'email_verified_at' => now(),
+                'email_verified_at' => now()
             ],
         );
     }
