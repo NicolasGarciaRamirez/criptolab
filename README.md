@@ -357,7 +357,7 @@ Limitación educativa: el proyecto no incluye una herramienta automática de re-
 - Nginx no registra la query string en el access log para evitar emails/tokens en URLs.
 - No se registran textos claros, contraseñas ni llaves privadas en `crypto_operations`, `audit_logs` ni logs de aplicación.
 - No hay CSP estricta para no romper Alpine.js; es una mejora pendiente.
-- No se implementó la passphrase opcional por usuario para llaves privadas; se usa la llave maestra de la aplicación.
+- La passphrase opcional se admite al generar un PEM en el laboratorio, pero no se implementó un flujo para recuperar llaves guardadas protegidas por passphrase del usuario: las llaves guardadas se protegen con la llave maestra de la aplicación.
 - Las pruebas automatizadas usan SQLite en memoria; PostgreSQL se valida con la aplicación en ejecución y las consultas directas.
 - La exportación es JSON; no se incluye PDF.
 - El proyecto no sustituye una auditoría criptográfica profesional.
