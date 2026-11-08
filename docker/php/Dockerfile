@@ -62,7 +62,7 @@ RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 RUN set -eux; \
     groupadd --gid "${GID}" app; \
     useradd --uid "${UID}" --gid app --create-home --shell /bin/bash app; \
-    mkdir -p /usr/local/var/run /var/www/html; \
+    mkdir -p /usr/local/var/run /var/www/html /home/app/.composer/cache; \
     chown -R app:app /usr/local/var/run /var/www/html /home/app
 
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/zz-app.ini

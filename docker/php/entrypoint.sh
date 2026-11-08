@@ -12,11 +12,6 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-if grep -q '^APP_KEY=$' .env || ! grep -q '^APP_KEY=' .env; then
-    log "Generando APP_KEY"
-    php artisan key:generate --force
-fi
-
 ensure_base64_key() {
     local name="$1"
     if grep -q "^${name}=base64:" .env; then
@@ -43,7 +38,12 @@ chmod -R ug+rwX storage bootstrap/cache || true
 
 if [ ! -f vendor/autoload.php ]; then
     log "Instalando dependencias de Composer"
-    composer install --no-interaction --prefer-dist --no-progress
+    COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --prefer-dist --no-progress
+fi
+
+if grep -q '^APP_KEY=$' .env || ! grep -q '^APP_KEY=' .env; then
+    log "Generando APP_KEY"
+    php artisan key:generate --force
 fi
 
 if [ ! -d node_modules ]; then

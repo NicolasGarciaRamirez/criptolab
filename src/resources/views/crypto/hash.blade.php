@@ -117,7 +117,10 @@
                 <div x-show="passwordResult" x-cloak class="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-900">
                     <p class="break-all font-mono text-xs" x-text="passwordResult?.hash"></p>
                     <p class="mt-2">Algoritmo detectado: <span x-text="passwordResult?.info?.algoName"></span></p>
-                    <p class="text-xs text-gray-500">El salt y el costo están incluidos en el hash.</p>
+                    <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                        Costo/parámetros: <span class="font-mono" x-text="JSON.stringify(passwordResult?.info?.options)"></span>
+                    </p>
+                    <p class="text-xs text-gray-500">El salt y el costo están incluidos en el hash; no se almacenan por separado.</p>
                 </div>
                 <div x-show="verifyResult" x-cloak class="rounded-md p-3 text-sm" :class="verifyResult?.valid ? 'bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-red-50 text-red-900 dark:bg-red-950 dark:text-red-100'">
                     <span x-text="verifyResult?.message"></span>

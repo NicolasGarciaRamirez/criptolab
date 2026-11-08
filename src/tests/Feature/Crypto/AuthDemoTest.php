@@ -9,6 +9,7 @@ use App\Models\CryptoOperation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -207,5 +208,23 @@ class AuthDemoTest extends TestCase
         $this->assertFalse(Str::contains($audit, 'ClaveUltraSecreta#2026'));
         $this->assertFalse(Str::contains($operations, 'usuario-secreto'));
         $this->assertFalse(Str::contains($operations, 'ClaveUltraSecreta#2026'));
+    }
+
+    public function test_plaintext_is_not_written_to_the_application_log(): void
+    {
+        $user = User::factory()->create();
+
+        Log::spy();
+
+        $this->actingAs($user)->post(route('crypto.auth-demo.store'), [
+            'username' => 'usuario-que-no-debe-loguearse',
+            'password' => 'ClaveQueNoDebeLoguearse#2026',
+            'sym_algorithm' => 'aes-256-gcm',
+            'asym_algorithm' => 'rsa-oaep-2048',
+        ]);
+
+        foreach (['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'] as $level) {
+            Log::shouldNotHaveReceived($level);
+        }
     }
 }

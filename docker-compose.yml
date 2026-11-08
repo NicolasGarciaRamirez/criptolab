@@ -22,7 +22,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local}
       MAIL_HOST: mailpit
       MAIL_PORT: "1025"
-      AUTO_SEED: "true"
+      AUTO_SEED: ${AUTO_SEED:-true}
     depends_on:
       db:
         condition: service_healthy
