@@ -11,9 +11,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 final class UniqueEmailHash implements ValidationRule
 {
-    public function __construct(private readonly ?int $ignoreUserId = null)
-    {
-    }
+    public function __construct(private readonly ?int $ignoreUserId = null) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

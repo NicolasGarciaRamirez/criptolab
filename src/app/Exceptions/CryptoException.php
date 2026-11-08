@@ -13,6 +13,16 @@ final class CryptoException extends RuntimeException
         return new self("La llave no es válida para {$algorithm}.");
     }
 
+    public static function invalidKeyMaterial(string $name, int $bytes): self
+    {
+        return new self("{$name} debe tener {$bytes} bytes (Base64 o hexadecimal).");
+    }
+
+    public static function invalidSignature(string $algorithm): self
+    {
+        return new self("La firma no es válida para {$algorithm}.");
+    }
+
     public static function decryptionFailed(string $algorithm): self
     {
         return new self("No se pudo descifrar. Verifica la llave, el IV/nonce o si el texto fue alterado ({$algorithm}).");

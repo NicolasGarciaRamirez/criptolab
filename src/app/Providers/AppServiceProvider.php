@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Auth\BlindIndexPasswordBrokerManager;
+use App\Auth\BlindIndexUserProvider;
+use App\Listeners\AuditAuthSubscriber;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->extend('auth.password', function ($manager, $app) {
-            return new \App\Auth\BlindIndexPasswordBrokerManager($app);
+            return new BlindIndexPasswordBrokerManager($app);
         });
     }
 
@@ -21,14 +27,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Auth::provider('blind-index', function ($app, array $config) {
-            return new \App\Auth\BlindIndexUserProvider($app['hash'], $config['model']);
+        Auth::provider('blind-index', function ($app, array $config) {
+            return new BlindIndexUserProvider($app['hash'], $config['model']);
         });
 
-        \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\AuditAuthSubscriber::class);
+        Event::subscribe(AuditAuthSubscriber::class);
 
         if ($this->app->environment('production')) {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
         }
     }
 }

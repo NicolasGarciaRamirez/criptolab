@@ -15,9 +15,7 @@ use Illuminate\Events\Dispatcher;
 
 final class AuditAuthSubscriber
 {
-    public function __construct(private readonly AuditService $audit)
-    {
-    }
+    public function __construct(private readonly AuditService $audit) {}
 
     public function onLogin(Login $event): void
     {
