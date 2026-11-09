@@ -5,7 +5,7 @@
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                     Formulario de autenticación cifrado
                 </h2>
-                <p class="text-sm text-gray-500">Usuario con cifrado simétrico y contraseña con cifrado asimétrico (configurable).</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Usuario con cifrado simétrico y contraseña con cifrado asimétrico (configurable).</p>
             </div>
             <div class="flex gap-3">
                 <a href="{{ route('crypto.auth-demo.export') }}" class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600">Exportar JSON</a>
@@ -82,7 +82,7 @@
                         <input type="checkbox" name="swap" value="1" @checked(old('swap')) class="rounded border-gray-300 text-indigo-600">
                         Intercambiar familias (usuario asimétrico, contraseña simétrica)
                     </label>
-                    <p class="text-xs text-gray-500">Por defecto: usuario simétrico y contraseña asimétrica. RSA-OAEP 2048 admite hasta 214 bytes de mensaje; para contraseñas cortas es suficiente.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Por defecto: usuario simétrico y contraseña asimétrica. RSA-OAEP 2048 admite hasta 214 bytes de mensaje; para contraseñas cortas es suficiente.</p>
 
                     <div>
                         <x-primary-button>Guardar y cifrar</x-primary-button>
@@ -113,13 +113,13 @@
             <section class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Registros creados</h3>
-                    <p class="text-xs text-gray-500">Texto claro a la izquierda · ciphertext a la derecha</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Texto claro a la izquierda · ciphertext a la derecha</p>
                 </div>
 
                 <div class="mt-4 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
-                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 <th class="px-3 py-3">Usuario claro</th>
                                 <th class="px-3 py-3">Usuario cifrado</th>
                                 <th class="px-3 py-3">Password claro</th>
@@ -135,51 +135,51 @@
                                     <td class="px-3 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">{{ $entry->username_plain }}</td>
                                     <td class="px-3 py-3">
                                         <div class="flex items-start gap-2">
-                                            <code class="max-w-xs break-all text-xs text-gray-500" title="{{ $entry->username_encrypted }}">{{ \Illuminate\Support\Str::limit($entry->username_encrypted, 90) }}</code>
-                                            <button type="button" class="text-xs underline text-indigo-600" @click="copy(@js($entry->username_encrypted), 'u{{ $entry->id }}')">copiar</button>
+                                            <code class="max-w-xs break-all text-xs text-gray-500 dark:text-gray-400" title="{{ $entry->username_encrypted }}">{{ \Illuminate\Support\Str::limit($entry->username_encrypted, 90) }}</code>
+                                            <button type="button" class="text-xs underline text-indigo-600 dark:text-indigo-400" @click="copy(@js($entry->username_encrypted), 'u{{ $entry->id }}')">copiar</button>
                                         </div>
                                         <p class="mt-1 text-[10px] text-gray-400">{{ strlen($entry->username_encrypted) }} B</p>
                                     </td>
                                     <td class="px-3 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">{{ $entry->password_plain }}</td>
                                     <td class="px-3 py-3">
                                         <div class="flex items-start gap-2">
-                                            <code class="max-w-xs break-all text-xs text-gray-500" title="{{ $entry->password_encrypted }}">{{ \Illuminate\Support\Str::limit($entry->password_encrypted, 90) }}</code>
-                                            <button type="button" class="text-xs underline text-indigo-600" @click="copy(@js($entry->password_encrypted), 'p{{ $entry->id }}')">copiar</button>
+                                            <code class="max-w-xs break-all text-xs text-gray-500 dark:text-gray-400" title="{{ $entry->password_encrypted }}">{{ \Illuminate\Support\Str::limit($entry->password_encrypted, 90) }}</code>
+                                            <button type="button" class="text-xs underline text-indigo-600 dark:text-indigo-400" @click="copy(@js($entry->password_encrypted), 'p{{ $entry->id }}')">copiar</button>
                                         </div>
                                         <p class="mt-1 text-[10px] text-gray-400">{{ strlen($entry->password_encrypted) }} B</p>
                                     </td>
                                     <td class="px-3 py-3 text-xs">
                                         <div><span class="font-semibold">sim:</span> {{ $entry->sym_algorithm }}</div>
                                         <div><span class="font-semibold">asym:</span> {{ $entry->asym_algorithm }}</div>
-                                        <div class="mt-1 text-[10px] text-gray-500">
+                                        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
                                             {{ ($entry->meta['swap'] ?? false) ? 'invertido' : 'usuario simétrico / password asimétrico' }}
                                         </div>
                                     </td>
-                                    <td class="px-3 py-3 text-xs text-gray-500">{{ $entry->created_at?->format('Y-m-d H:i') }}</td>
+                                    <td class="px-3 py-3 text-xs text-gray-500 dark:text-gray-400">{{ $entry->created_at?->format('Y-m-d H:i') }}</td>
                                     <td class="px-3 py-3">
                                         <div class="flex flex-col items-end gap-2">
-                                            <button type="button" class="text-xs underline text-emerald-600" @click="decrypt({{ $entry->id }})" :disabled="decryptingId === {{ $entry->id }}">
+                                            <button type="button" class="text-xs underline text-emerald-600 dark:text-emerald-400" @click="decrypt({{ $entry->id }})" :disabled="decryptingId === {{ $entry->id }}">
                                                 <span x-show="decryptingId !== {{ $entry->id }}">Descifrar</span>
                                                 <span x-show="decryptingId === {{ $entry->id }}">Descifrando…</span>
                                             </button>
                                             <form method="POST" action="{{ route('crypto.auth-demo.destroy', $entry->id) }}" onsubmit="return confirm('¿Eliminar este registro de demostración?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-xs underline text-red-600">Eliminar</button>
+                                                <button type="submit" class="text-xs underline text-red-600 dark:text-red-400">Eliminar</button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-3 py-8 text-center text-gray-500">Aún no hay registros. Completa el formulario para crear el primero.</td>
+                                    <td colspan="7" class="px-3 py-8 text-center text-gray-500 dark:text-gray-400">Aún no hay registros. Completa el formulario para crear el primero.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
 
-                <p x-show="copied" x-cloak class="mt-2 text-xs text-emerald-600">Texto cifrado copiado (<span x-text="copied"></span>).</p>
+                <p x-show="copied" x-cloak class="mt-2 text-xs text-emerald-600 dark:text-emerald-400">Texto cifrado copiado (<span x-text="copied"></span>).</p>
 
                 <div class="mt-4">{{ $entries->links() }}</div>
             </section>

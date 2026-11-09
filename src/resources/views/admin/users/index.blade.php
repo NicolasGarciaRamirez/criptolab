@@ -3,7 +3,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Usuarios</h2>
-                <p class="text-sm text-gray-500">{{ $total }} cuentas registradas. Los emails y teléfonos se muestran descifrados solo para el administrador.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $total }} cuentas registradas. Los emails y teléfonos se muestran descifrados solo para el administrador.</p>
             </div>
             <a href="{{ route('admin.audit.index') }}" class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600">Ver auditoría</a>
         </div>
@@ -26,7 +26,7 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
-                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 <th class="px-4 py-3">ID</th>
                                 <th class="px-4 py-3">Nombre</th>
                                 <th class="px-4 py-3">Usuario</th>
@@ -39,7 +39,7 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @foreach ($users as $user)
                                 <tr>
-                                    <td class="px-4 py-3 text-gray-500">{{ $user->id }}</td>
+                                    <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $user->id }}</td>
                                     <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $user->name }}</td>
                                     <td class="px-4 py-3"><code class="text-xs">{{ $user->username }}</code></td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $user->email }}</td>
@@ -48,10 +48,10 @@
                                             {{ $user->role->label() }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-xs {{ $user->hasVerifiedEmail() ? 'text-emerald-600' : 'text-amber-600' }}">
+                                    <td class="px-4 py-3 text-xs {{ $user->hasVerifiedEmail() ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400' }}">
                                         {{ $user->hasVerifiedEmail() ? 'Sí' : 'No' }}
                                     </td>
-                                    <td class="px-4 py-3 text-gray-500">{{ $user->created_at?->format('Y-m-d H:i') }}</td>
+                                    <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $user->created_at?->format('Y-m-d H:i') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -70,7 +70,7 @@
                 <p class="mt-3 text-gray-600 dark:text-gray-400">
                     La pantalla de autenticación cifrada replica el ejercicio del enunciado: el usuario se cifra con un algoritmo simétrico y la contraseña con RSA-OAEP. La tabla muestra texto claro, texto cifrado, algoritmos, fecha y un botón para descifrar.
                 </p>
-                <p class="mt-3 text-sm text-gray-500">
+                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
                     Esta demostración es independiente del login real. El login siempre usa hash Argon2id.
                 </p>
                 <div class="mt-5 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-700 dark:bg-red-950 dark:text-red-100">

@@ -5,3 +5,19 @@
 [x-cloak] {
     display: none !important;
 }
+
+/* Controles nativos (select, scrollbars) en modo oscuro. */
+:root {
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+    }
+
+    select option {
+        background-color: #111827;
+        color: #f3f4f6;
+    }
+}

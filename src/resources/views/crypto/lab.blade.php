@@ -23,7 +23,7 @@
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         Una misma llave cifra y descifra. IV/nonce aleatorio, GCM autenticado, CBC y alternativas modernas.
                     </p>
-                    <p class="mt-4 text-xs text-gray-500">{{ count($symmetric) }} algoritmos disponibles</p>
+                    <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">{{ count($symmetric) }} algoritmos disponibles</p>
                 </a>
 
                 <a href="{{ route('crypto.asymmetric') }}" class="block rounded-lg bg-white p-6 shadow-sm transition hover:shadow-md dark:bg-gray-800">
@@ -32,7 +32,7 @@
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         Llave pública para cifrar, llave privada para descifrar. Firmas RSA-SHA256 y Ed25519.
                     </p>
-                    <p class="mt-4 text-xs text-gray-500">{{ count($asymmetric) }} cifrados · {{ count($signers) }} firmas</p>
+                    <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">{{ count($asymmetric) }} cifrados · {{ count($signers) }} firmas</p>
                 </a>
 
                 <a href="{{ route('crypto.hash') }}" class="block rounded-lg bg-white p-6 shadow-sm transition hover:shadow-md dark:bg-gray-800">
@@ -41,7 +41,7 @@
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         SHA-256, SHA-512, SHA3, BLAKE2b, HMAC, bcrypt y Argon2id. Compara hash vs cifrado vs Base64.
                     </p>
-                    <p class="mt-4 text-xs text-gray-500">No es cifrado: es irreversible</p>
+                    <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">No es cifrado: es irreversible</p>
                 </a>
 
                 <a href="{{ route('crypto.keypairs.index') }}" class="block rounded-lg bg-white p-6 shadow-sm transition hover:shadow-md dark:bg-gray-800">
@@ -50,7 +50,7 @@
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         Consulta llaves públicas y descárgalas. Las llaves privadas se guardan cifradas y no se vuelven a mostrar.
                     </p>
-                    <p class="mt-4 text-xs text-gray-500">Llave maestra + cast cifrado</p>
+                    <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">Llave maestra + cast cifrado</p>
                 </a>
             </div>
 

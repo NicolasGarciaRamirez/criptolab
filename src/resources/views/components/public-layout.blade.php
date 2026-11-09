@@ -36,7 +36,7 @@
         </main>
 
         <footer class="border-t border-gray-200 bg-white py-8 dark:border-gray-800 dark:bg-gray-900">
-            <div class="mx-auto max-w-7xl px-4 text-sm text-gray-500 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl px-4 text-sm text-gray-500 dark:text-gray-400 sm:px-6 lg:px-8">
                 <p>CriptoLab · Actividad académica de criptografía aplicada con Laravel y PostgreSQL.</p>
                 <p class="mt-2 text-xs">Proyecto educativo. No usar para proteger credenciales reales. El login real usa Argon2id; la pantalla de autenticación cifrada es solo una demostración.</p>
             </div>

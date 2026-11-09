@@ -3,7 +3,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Registro de actividad</h2>
-                <p class="text-sm text-gray-500">Auditoría de acciones relevantes. Nunca se guardan contraseñas, textos claros ni llaves privadas.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Auditoría de acciones relevantes. Nunca se guardan contraseñas, textos claros ni llaves privadas.</p>
             </div>
             <a href="{{ route('admin.users.index') }}" class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600">Ver usuarios</a>
         </div>
@@ -31,7 +31,7 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
-                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 <th class="px-4 py-3">Fecha</th>
                                 <th class="px-4 py-3">Usuario</th>
                                 <th class="px-4 py-3">Acción</th>
@@ -42,7 +42,7 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @forelse ($logs as $log)
                                 <tr>
-                                    <td class="px-4 py-3 text-gray-500">{{ $log->created_at?->format('Y-m-d H:i:s') }}</td>
+                                    <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $log->created_at?->format('Y-m-d H:i:s') }}</td>
                                     <td class="px-4 py-3">
                                         @if ($log->user)
                                             <span class="font-mono text-xs">{{ $log->user->username }}</span>
@@ -55,11 +55,11 @@
                                         <span class="block text-[10px] text-gray-400">{{ $log->action }}</span>
                                     </td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $log->description }}</td>
-                                    <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ $log->ip_address }}</td>
+                                    <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ $log->ip_address }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">No hay registros para el filtro seleccionado.</td>
+                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay registros para el filtro seleccionado.</td>
                                 </tr>
                             @endforelse
                         </tbody>

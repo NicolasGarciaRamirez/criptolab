@@ -12,7 +12,7 @@
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     Una sola llave cifra y descifra. Es rápido y adecuado para grandes volúmenes. Requiere compartir la llave por un canal seguro.
                 </p>
-                <p class="mt-3 text-xs text-gray-500">Ejemplos: AES-GCM, ChaCha20-Poly1305. En CriptoLab se usa para el usuario en la pantalla 5.4.</p>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">Ejemplos: AES-GCM, ChaCha20-Poly1305. En CriptoLab se usa para el usuario en la pantalla 5.4.</p>
             </article>
 
             <article class="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900">
@@ -20,7 +20,7 @@
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     Una llave pública cifra o verifica y la llave privada descifra o firma. Resuelve el intercambio de llaves, pero es lento y tiene límite de tamaño.
                 </p>
-                <p class="mt-3 text-xs text-gray-500">Ejemplos: RSA-OAEP, X25519 sealed box, híbrido RSA+AES. En CriptoLab se usa para la contraseña de la pantalla 5.4.</p>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">Ejemplos: RSA-OAEP, X25519 sealed box, híbrido RSA+AES. En CriptoLab se usa para la contraseña de la pantalla 5.4.</p>
             </article>
 
             <article class="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900">
@@ -28,7 +28,7 @@
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     Un hash es irreversible y no usa llave (salvo HMAC). Sirve para integridad y contraseñas; nunca se “descifra”. La derivación convierte una frase en una llave.
                 </p>
-                <p class="mt-3 text-xs text-gray-500">Ejemplos: SHA-256, Argon2id, PBKDF2. El login real de CriptoLab usa Argon2id.</p>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">Ejemplos: SHA-256, Argon2id, PBKDF2. El login real de CriptoLab usa Argon2id.</p>
             </article>
         </div>
 
@@ -36,7 +36,7 @@
             <h2 class="text-lg font-semibold">Comparación rápida</h2>
             <table class="mt-4 min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                 <thead>
-                    <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                    <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                         <th class="py-2 pr-4">Técnica</th>
                         <th class="py-2 pr-4">Reversible</th>
                         <th class="py-2 pr-4">Llave</th>
@@ -61,7 +61,7 @@
             <div class="mt-4 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                     <thead>
-                        <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                        <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                             <th class="py-2 pr-4">Java</th>
                             <th class="py-2">PHP / Laravel</th>
                         </tr>

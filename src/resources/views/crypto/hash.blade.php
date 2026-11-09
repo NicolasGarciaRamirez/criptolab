@@ -50,9 +50,9 @@
                             <p class="mt-2 break-all font-mono text-xs" x-text="digestResult?.hex"></p>
                         </div>
                         <div class="flex gap-3 text-xs">
-                            <button type="button" class="underline text-indigo-600" @click="copy(digestResult?.hex, 'digest')">Copiar hex</button>
-                            <button type="button" class="underline text-indigo-600" @click="copy(digestResult?.base64, 'digest64')">Copiar Base64</button>
-                            <span x-show="copied === 'digest' || copied === 'digest64'" class="text-emerald-600">copiado</span>
+                            <button type="button" class="underline text-indigo-600 dark:text-indigo-400" @click="copy(digestResult?.hex, 'digest')">Copiar hex</button>
+                            <button type="button" class="underline text-indigo-600 dark:text-indigo-400" @click="copy(digestResult?.base64, 'digest64')">Copiar Base64</button>
+                            <span x-show="copied === 'digest' || copied === 'digest64'" class="text-emerald-600 dark:text-emerald-400">copiado</span>
                         </div>
                     </div>
                 </section>
@@ -76,7 +76,7 @@
                     <div x-show="hmacResult" x-cloak class="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-900">
                         <p class="break-all font-mono text-xs" x-text="hmacResult?.result?.hex"></p>
                         <p class="mt-2">Llave usada: <span x-text="hmacResult?.result?.key_bytes"></span> bytes.</p>
-                        <p x-show="hmacResult?.valid !== null" class="mt-2 font-semibold" :class="hmacResult?.valid ? 'text-emerald-600' : 'text-red-600'" x-text="hmacResult?.valid ? 'HMAC válido: el mensaje no fue alterado.' : 'HMAC inválido: el mensaje o la llave no coinciden.'"></p>
+                        <p x-show="hmacResult?.valid !== null" class="mt-2 font-semibold" :class="hmacResult?.valid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'" x-text="hmacResult?.valid ? 'HMAC válido: el mensaje no fue alterado.' : 'HMAC inválido: el mensaje o la llave no coinciden.'"></p>
                     </div>
                 </section>
             </div>
@@ -120,7 +120,7 @@
                     <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                         Costo/parámetros: <span class="font-mono" x-text="JSON.stringify(passwordResult?.info?.options)"></span>
                     </p>
-                    <p class="text-xs text-gray-500">El salt y el costo están incluidos en el hash; no se almacenan por separado.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">El salt y el costo están incluidos en el hash; no se almacenan por separado.</p>
                 </div>
                 <div x-show="verifyResult" x-cloak class="rounded-md p-3 text-sm" :class="verifyResult?.valid ? 'bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100' : 'bg-red-50 text-red-900 dark:bg-red-950 dark:text-red-100'">
                     <span x-text="verifyResult?.message"></span>
@@ -132,7 +132,7 @@
                 <div class="mt-4 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead>
-                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 <th class="py-2 pr-4">Técnica</th>
                                 <th class="py-2 pr-4">¿Reversible?</th>
                                 <th class="py-2 pr-4">¿Usa llave?</th>

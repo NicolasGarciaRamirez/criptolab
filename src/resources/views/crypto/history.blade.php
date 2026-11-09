@@ -36,7 +36,7 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
-                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 <th class="px-4 py-3">Fecha</th>
                                 <th class="px-4 py-3">Tipo</th>
                                 <th class="px-4 py-3">Algoritmo</th>
@@ -47,19 +47,19 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             @forelse ($operations as $operation)
                                 <tr>
-                                    <td class="px-4 py-3 text-gray-500">{{ $operation->created_at?->format('Y-m-d H:i:s') }}</td>
+                                    <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $operation->created_at?->format('Y-m-d H:i:s') }}</td>
                                     <td class="px-4 py-3"><span class="rounded-full bg-gray-100 px-2 py-1 text-xs dark:bg-gray-700">{{ $operation->type }}</span></td>
                                     <td class="px-4 py-3"><code class="text-xs">{{ $operation->algorithm }}</code></td>
-                                    <td class="px-4 py-3 text-gray-500">{{ $operation->context }}</td>
+                                    <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $operation->context }}</td>
                                     <td class="px-4 py-3">
-                                        <span class="text-xs font-semibold {{ $operation->success ? 'text-emerald-600' : 'text-red-600' }}">
+                                        <span class="text-xs font-semibold {{ $operation->success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                             {{ $operation->success ? 'OK' : 'Falló' }}
                                         </span>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">Todavía no hay operaciones registradas.</td>
+                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Todavía no hay operaciones registradas.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
                 El historial guarda solo metadatos: tipo, algoritmo y fecha. Nunca guarda textos claros, contraseñas ni llaves privadas.
             </p>
 

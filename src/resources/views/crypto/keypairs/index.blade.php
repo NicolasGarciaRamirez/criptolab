@@ -24,7 +24,7 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
-                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
+                            <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 <th class="px-4 py-3">Nombre</th>
                                 <th class="px-4 py-3">Algoritmo</th>
                                 <th class="px-4 py-3">Huella SHA-256</th>
@@ -37,8 +37,8 @@
                                 <tr>
                                     <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $keypair->name }}</td>
                                     <td class="px-4 py-3"><code class="text-xs">{{ $keypair->algorithm }}</code></td>
-                                    <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ \Illuminate\Support\Str::limit($keypair->fingerprint, 24) }}</td>
-                                    <td class="px-4 py-3 text-gray-500">{{ $keypair->created_at?->format('Y-m-d H:i') }}</td>
+                                    <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ \Illuminate\Support\Str::limit($keypair->fingerprint, 24) }}</td>
+                                    <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $keypair->created_at?->format('Y-m-d H:i') }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center justify-end gap-3">
                                             <a href="{{ route('crypto.keypairs.public', $keypair->id) }}" class="text-xs underline text-indigo-600 dark:text-indigo-400">Descargar pública</a>
@@ -52,7 +52,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                                         Aún no tienes llaves guardadas. Genera una en el laboratorio asimétrico.
                                     </td>
                                 </tr>

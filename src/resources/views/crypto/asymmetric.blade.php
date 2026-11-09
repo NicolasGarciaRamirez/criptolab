@@ -63,9 +63,9 @@
                         <div class="flex items-center justify-between">
                             <x-input-label value="Llave pública" />
                             <div class="flex gap-3 text-xs">
-                                <button type="button" class="underline text-indigo-600" @click="copy(pair?.public_key, 'publica')">Copiar</button>
-                                <button type="button" class="underline text-indigo-600" @click="download('llave-publica.txt', pair?.public_key)">Descargar</button>
-                                <span x-show="copied === 'publica'" class="text-emerald-600">copiada</span>
+                                <button type="button" class="underline text-indigo-600 dark:text-indigo-400" @click="copy(pair?.public_key, 'publica')">Copiar</button>
+                                <button type="button" class="underline text-indigo-600 dark:text-indigo-400" @click="download('llave-publica.txt', pair?.public_key)">Descargar</button>
+                                <span x-show="copied === 'publica'" class="text-emerald-600 dark:text-emerald-400">copiada</span>
                             </div>
                         </div>
                         <textarea readonly rows="10" x-model="pair.public_key" class="mt-1 block w-full rounded-md border-gray-300 font-mono text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></textarea>
@@ -74,14 +74,14 @@
                         <div class="flex items-center justify-between">
                             <x-input-label value="Llave privada (se muestra una sola vez)" />
                             <div class="flex gap-3 text-xs">
-                                <button type="button" class="underline text-indigo-600" @click="copy(pair?.private_key, 'privada')">Copiar</button>
-                                <button type="button" class="underline text-indigo-600" @click="download('llave-privada.txt', pair?.private_key)">Descargar</button>
-                                <span x-show="copied === 'privada'" class="text-emerald-600">copiada</span>
+                                <button type="button" class="underline text-indigo-600 dark:text-indigo-400" @click="copy(pair?.private_key, 'privada')">Copiar</button>
+                                <button type="button" class="underline text-indigo-600 dark:text-indigo-400" @click="download('llave-privada.txt', pair?.private_key)">Descargar</button>
+                                <span x-show="copied === 'privada'" class="text-emerald-600 dark:text-emerald-400">copiada</span>
                             </div>
                         </div>
                         <textarea readonly rows="10" x-model="pair.private_key" class="mt-1 block w-full rounded-md border-gray-300 font-mono text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></textarea>
                         <p class="mt-1 text-xs text-amber-600 dark:text-amber-400" x-show="saveKey">Guardada cifrada en la base de datos. La passphrase, si la usaste, no se almacena.</p>
-                        <p class="mt-1 text-xs text-gray-500">Huella SHA-256: <span class="font-mono" x-text="pair?.fingerprint"></span></p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Huella SHA-256: <span class="font-mono" x-text="pair?.fingerprint"></span></p>
                     </div>
                 </div>
             </section>
@@ -96,7 +96,7 @@
                                 <option value="{{ $cipher['id'] }}">{{ $cipher['label'] }}</option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">Límite de este algoritmo: <span x-text="maxBytes ? maxBytes + ' bytes' : 'sin límite práctico'"></span>. Para textos largos usa el híbrido.</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Límite de este algoritmo: <span x-text="maxBytes ? maxBytes + ' bytes' : 'sin límite práctico'"></span>. Para textos largos usa el híbrido.</p>
                     </div>
                     <div>
                         <x-input-label for="asym-plaintext" value="Texto en claro" />
@@ -113,7 +113,7 @@
                     <div x-show="encrypted" x-cloak class="space-y-2">
                         <x-input-label value="Sobre cifrado (JSON)" />
                         <textarea rows="5" x-model="payload" class="block w-full rounded-md border-gray-300 font-mono text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></textarea>
-                        <p class="text-xs text-gray-500">Tamaño del ciphertext: <span x-text="(encrypted?.sizes?.ciphertext ?? 0) + ' B'"></span></p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Tamaño del ciphertext: <span x-text="(encrypted?.sizes?.ciphertext ?? 0) + ' B'"></span></p>
                     </div>
                 </section>
 

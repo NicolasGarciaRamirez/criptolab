@@ -5,7 +5,7 @@
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                     Panel de {{ Auth::user()->name }}
                 </h2>
-                <p class="text-sm text-gray-500">Criptografía aplicada con Laravel, PostgreSQL y Sodium/OpenSSL.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Criptografía aplicada con Laravel, PostgreSQL y Sodium/OpenSSL.</p>
             </div>
             <a href="{{ route('crypto.lab') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Abrir laboratorio</a>
         </div>
@@ -15,17 +15,17 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="grid gap-4 sm:grid-cols-3">
                 <div class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Operaciones</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Operaciones</p>
                     <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $operationsCount }}</p>
                     <a href="{{ route('crypto.history') }}" class="mt-2 inline-block text-xs underline text-indigo-600 dark:text-indigo-400">Ver historial</a>
                 </div>
                 <div class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Entradas de demostración</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Entradas de demostración</p>
                     <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $demoEntriesCount }}</p>
                     <a href="{{ Route::has('crypto.auth-demo') ? route('crypto.auth-demo') : '#' }}" class="mt-2 inline-block text-xs underline text-indigo-600 dark:text-indigo-400">Formulario cifrado</a>
                 </div>
                 <div class="rounded-lg bg-white p-5 shadow-sm dark:bg-gray-800">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Pares de llaves</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Pares de llaves</p>
                     <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $keypairsCount }}</p>
                     <a href="{{ route('crypto.keypairs.index') }}" class="mt-2 inline-block text-xs underline text-indigo-600 dark:text-indigo-400">Mis llaves</a>
                 </div>
@@ -57,17 +57,17 @@
                 </div>
 
                 @if ($recentOperations->isEmpty())
-                    <p class="mt-3 text-sm text-gray-500">Todavía no has realizado operaciones.</p>
+                    <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Todavía no has realizado operaciones.</p>
                 @else
                     <ul class="mt-3 divide-y divide-gray-100 text-sm dark:divide-gray-700">
                         @foreach ($recentOperations as $operation)
                             <li class="flex items-center justify-between py-2">
                                 <div>
                                     <span class="font-medium text-gray-800 dark:text-gray-200">{{ $operation->type }}</span>
-                                    <span class="text-gray-500">· {{ $operation->algorithm }}</span>
+                                    <span class="text-gray-500 dark:text-gray-400">· {{ $operation->algorithm }}</span>
                                 </div>
-                                <div class="text-right text-xs text-gray-500">
-                                    <span class="{{ $operation->success ? 'text-emerald-600' : 'text-red-600' }}">{{ $operation->success ? 'OK' : 'Falló' }}</span>
+                                <div class="text-right text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="{{ $operation->success ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">{{ $operation->success ? 'OK' : 'Falló' }}</span>
                                     · {{ $operation->created_at?->format('Y-m-d H:i') }}
                                 </div>
                             </li>

@@ -57,10 +57,10 @@
                             </button>
                         </div>
                         <textarea id="key" x-model="key" rows="2" spellcheck="false" class="mt-1 block w-full rounded-md border-gray-300 font-mono text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></textarea>
-                        <p class="mt-1 text-xs text-gray-500">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                             <span x-text="keyBytes"></span> bytes ·
                             <button type="button" class="underline" @click="copy(keyHex, 'hex')">copiar hex</button>
-                            <span x-show="copied === 'hex'" class="text-emerald-600">copiado</span>
+                            <span x-show="copied === 'hex'" class="text-emerald-600 dark:text-emerald-400">copiado</span>
                         </p>
                     </div>
 
@@ -128,10 +128,10 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Resultado</h3>
                         <button type="button" @click="copy(resultJson, 'resultado')" class="text-xs underline text-indigo-600 dark:text-indigo-400">Copiar JSON</button>
                     </div>
-                    <p x-show="copied === 'resultado'" x-cloak class="text-xs text-emerald-600">Resultado copiado.</p>
+                    <p x-show="copied === 'resultado'" x-cloak class="text-xs text-emerald-600 dark:text-emerald-400">Resultado copiado.</p>
 
                     <template x-if="!result">
-                        <p class="mt-4 text-sm text-gray-500">Aún no hay resultados. Genera una llave y pulsa Cifrar.</p>
+                        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Aún no hay resultados. Genera una llave y pulsa Cifrar.</p>
                     </template>
 
                     <div x-show="result" x-cloak class="mt-4 space-y-4">
