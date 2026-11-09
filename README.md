@@ -16,7 +16,9 @@ Aplicación web educativa para la actividad evaluativa **“Criptografía en Jav
   - **Firmas:** RSA-SHA256 y Ed25519.
   - **Hash:** SHA-256, SHA-512, SHA3-256, BLAKE2b-512, HMAC-SHA256, bcrypt y Argon2id.
   - Derivación PBKDF2-SHA256 y Argon2id con salt visible.
-- Pantalla **5.4 “Formulario de autenticación cifrado”**: usuario con cifrado simétrico, contraseña con RSA-OAEP (o familias invertidas), tabla con texto claro/cifrado, descifrado por fila y exportación JSON.
+- Pantalla **5.4 “Formulario de autenticación cifrado”**: usuario con cifrado simétrico, contraseña con RSA-OAEP (o familias invertidas), tabla con texto claro/cifrado, descifrado por fila, re-cifrado, vista cruda de BD y exportación JSON/CSV.
+- **Módulos avanzados:** cifrado de archivos, comparación ECB/CBC/CTR/GCM, reutilización de nonce, AAD, X25519, ECDSA P-256/P-384, firma+cifrado, certificados X.509 autofirmados, importación de PEM, timing-safe, rainbow table, benchmark, comparador de overhead y quiz.
+- **Instructivo en cada laboratorio** con objetivo, pasos, resultado esperado, interpretación y nota para el docente.
 - Cifrado en reposo de email, teléfono, llaves privadas y campos sensibles de la demo.
 - Historial de operaciones sin textos claros ni llaves privadas.
 - Páginas de error personalizadas, cabeceras de seguridad, rate limiting y mensajes en español.
@@ -136,13 +138,58 @@ También puede usarse `docker compose exec app php artisan ...`.
 | `/dashboard` | Panel del usuario autenticado |
 | `/lab` | Laboratorio criptográfico |
 | `/lab/simetrico` | Cifrado simétrico |
-| `/lab/asimetrico` | Cifrado asimétrico, híbrido y firmas |
+| `/lab/simetrico/archivos` | Cifrado/descifrado de archivos en memoria |
+| `/lab/simetrico/modos` | Comparación ECB/CBC/CTR/GCM y nonce reuse |
+| `/lab/simetrico/aad` | AES-GCM con datos asociados |
+| `/lab/asimetrico` | Cifrado asimétrico, híbrido y firmas (incluye ECDSA) |
+| `/lab/asimetrico/x25519` | Intercambio de llaves X25519 |
+| `/lab/asimetrico/firma-cifrado` | Firma + cifrado combinados |
+| `/lab/asimetrico/certificados` | Certificados X.509 autofirmados |
+| `/lab/asimetrico/importar` | Inspección/importación de llaves PEM |
 | `/lab/hash` | Hashes, HMAC y contraseñas |
+| `/lab/hash/tiempo-seguro` | `===` frente a `hash_equals()` |
+| `/lab/hash/rainbow` | Rainbow table frente a Argon2id |
 | `/lab/autenticacion-cifrada` | **Pantalla 5.4** |
 | `/lab/historial` | Historial de operaciones |
 | `/lab/llaves` | Llaves públicas guardadas |
+| `/lab/benchmark` | Benchmark de algoritmos |
+| `/lab/comparador` | Comparador de tamaños y overhead |
+| `/lab/retos` | Quiz/autoevaluación por módulo |
 | `/admin/usuarios` | Listado de usuarios (solo admin) |
 | `/admin/auditoria` | Registro de actividad (solo admin) |
+
+---
+
+## 6.1 Instructivos y guía docente
+
+Cada pantalla del laboratorio incluye un bloque **“Instructivo”** con:
+
+- Objetivo del ejercicio.
+- Cómo funciona el algoritmo o flujo.
+- Pasos numerados.
+- Resultado esperado.
+- Cómo interpretar el resultado.
+- Nota para el docente y advertencia de seguridad.
+
+| Laboratorio | Concepto principal | Evidencia sugerida |
+|---|---|---|
+| Simétrico | IV/nonce, tag, cifrado autenticado | Texto descifrado y dos cifrados distintos |
+| Archivos | Cifrado autenticado de datos reales | Archivo recuperado idéntico y .crypt descargado |
+| Modos AES | ECB vs CBC/CTR/GCM | Tabla con bloques repetidos y tag |
+| Nonce reuse | Fuga por reutilización de nonce | XOR de ciphertexts y textos claros |
+| AAD | Datos autenticados sin cifrar | Descifrado correcto con el mismo AAD y fallo al cambiarlo |
+| Asimétrico | Pública/privada y firmas | Cifrado/descifrado y firma válida/inválida |
+| X25519 | Diffie-Hellman | Mismo secreto/fingerprint en Alice y Bob |
+| Firma+cifrado | Confidencialidad + autenticidad | Mensaje descifrado y firma válida |
+| Certificados | X.509 autofirmado | Sujeto/emisor, fingerprint y verificación |
+| Importar llaves | PEM y fingerprint | Tipo, bits/curva y fingerprint |
+| Hash | Hash vs cifrado vs Base64 | Digest, HMAC y contraseña verificada |
+| Timing | Comparación en tiempo constante | Tiempos y conclusión sobre `hash_equals` |
+| Rainbow | Hash rápido vs KDF lento | Contraseña encontrada y Argon2id con salt |
+| Benchmark | Costos relativos | Tabla de ms y ops/s |
+| Comparador | Overhead de cada algoritmo | Tabla de tamaños y overhead |
+| Retos | Autoevaluación | Puntaje y explicaciones |
+| Autenticación 5.4 | Cifrado reversible educativo | Tabla claro/cifrado, descifrado y re-cifrado |
 
 ---
 
@@ -158,8 +205,15 @@ También puede usarse `docker compose exec app php artisan ...`.
 | Asimétrico | RSA-OAEP 2048/4096 | `app/Services/Crypto/Asymmetric/RsaOaep.php` |
 | Asimétrico | Sealed box X25519 | `app/Services/Crypto/Asymmetric/SealedBox.php` |
 | Asimétrico | Híbrido RSA + AES-256-GCM | `app/Services/Crypto/Asymmetric/HybridEncryption.php` |
+| Intercambio | X25519 + HKDF | `app/Services/Crypto/KeyAgreementService.php` |
 | Firma | RSA-SHA256 | `app/Services/Crypto/Asymmetric/RsaSigner.php` |
+| Firma | ECDSA P-256/P-384 | `app/Services/Crypto/Asymmetric/EcdsaSigner.php` |
 | Firma | Ed25519 | `app/Services/Crypto/Asymmetric/Ed25519Signer.php` |
+| Archivos | Cifrado autenticado en memoria | `app/Services/Crypto/FileCryptoService.php` |
+| Modos AES | Comparación educativa ECB/CBC/CTR/GCM | `app/Services/Crypto/AesModesComparisonService.php` |
+| Nonce reuse | Demo educativa de reutilización | `app/Services/Crypto/NonceReuseDemoService.php` |
+| AAD | AES-GCM con datos asociados | `app/Services/Crypto/Symmetric/Aes256Gcm.php` |
+| X.509 | Certificado autofirmado | `app/Services/Crypto/X509Service.php` |
 | Hash | SHA-256, SHA-512, SHA3-256, BLAKE2b-512 (Sodium) | `app/Services/Crypto/Hash/HashService.php` |
 | Hash | HMAC-SHA256 | `app/Services/Crypto/Hash/HashService.php` |
 | Contraseñas | bcrypt, Argon2id | `app/Services/Crypto/Hash/PasswordHasher.php` y `HashService.php` |
@@ -175,6 +229,9 @@ Los contratos comunes están en `app/Services/Crypto/Contracts/`.
 - GCM, ChaCha20-Poly1305 y XSalsa20 detectan manipulación; CBC y CTR se muestran como comparación y se advierte que no autentican.
 - RSA-OAEP usa el relleno OAEP de OpenSSL/PHP. El máximo es **214 bytes para 2048 bits** y **470 bytes para 4096 bits**; para textos largos se ofrece el cifrado híbrido.
 - Las comparaciones de HMAC usan `hash_equals()`; las firmas se validan con `openssl_verify()`/Sodium.
+- ECDSA usa OpenSSL con P-256/SHA-256 y P-384/SHA-384.
+- X25519 usa `sodium_crypto_scalarmult`; la llave AES se deriva con HKDF-SHA256.
+- Los archivos se procesan en memoria, máximo 5 MB, sin almacenamiento persistente.
 - No se implementan algoritmos propios.
 
 ---
@@ -281,6 +338,9 @@ La suite incluye:
 - Pantalla 5.4: cifrado, descifrado, modo invertido, exportación y propiedad de los registros.
 - Que los logs no contengan textos claros.
 - Admin, 403 personalizado, cabeceras de seguridad y configuración de sesión.
+- Archivos, modos AES, nonce reuse, AAD, X25519, ECDSA, firma+cifrado, X.509, importación de PEM, timing, rainbow, benchmark y quiz.
+- Re-cifrado, alteración, vista cruda y CSV de la pantalla 5.4.
+- Presencia de instructivos en todos los laboratorios.
 
 Las pruebas usan SQLite en memoria y fuerzan su propia configuración en `phpunit.xml` para no tocar PostgreSQL. La aplicación en ejecución usa PostgreSQL 18.
 
@@ -399,7 +459,9 @@ Limitación educativa: el proyecto no incluye una herramienta automática de re-
     │   └── Services/Audit/
     ├── database/migrations|seeders|factories
     ├── resources/views/crypto|admin|pages|errors|auth|profile
-    ├── resources/js/crypto.js
+    ├── resources/js/{crypto.js,labs.js}
+    ├── resources/views/components/lab-guide.blade.php
+    ├── resources/views/crypto/partials/subnav.blade.php
     ├── routes/web.php|auth.php
     └── tests/Unit|Feature
 ```

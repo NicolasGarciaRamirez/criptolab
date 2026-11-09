@@ -30,11 +30,20 @@ Ejecutar comandos de Laravel siempre dentro del contenedor `app` (o con `make`).
 - `src/app/Services/Crypto/Contracts/`: interfaces comunes.
 - `src/app/Services/Crypto/Symmetric/`, `Asymmetric/`, `Hash/`: implementaciones con OpenSSL/Sodium.
 - `src/app/Services/Crypto/Registries/`: catálogo de algoritmos; se registran en `CryptoServiceProvider`.
-- `src/app/Services/Crypto/AuthDemoService.php`: creación/descifrado de registros de la pantalla 5.4.
-- `src/app/Services/Crypto/KeypairService.php`: generación y almacenamiento cifrado de llaves.
+- `src/app/Services/Crypto/AuthDemoService.php`: creación/descifrado/re-cifrado de registros de la pantalla 5.4.
+- `src/app/Services/Crypto/KeypairService.php`: generación, importación y almacenamiento cifrado de llaves.
+- `src/app/Services/Crypto/FileCryptoService.php`: archivos en memoria, máximo 5 MB, solo cifrados autenticados.
+- `src/app/Services/Crypto/KeyAgreementService.php`: X25519 y derivación HKDF.
+- `src/app/Services/Crypto/SignedEncryptionService.php`: firma + cifrado.
+- `src/app/Services/Crypto/X509Service.php`: certificados autofirmados.
+- `src/app/Services/Crypto/{AesModesComparisonService,NonceReuseDemoService}.php`: demos educativos aislados.
+- `src/app/Services/Crypto/{TimingComparisonService,RainbowTableService,BenchmarkService,QuizService}.php`: utilidades docentes.
 - `src/app/Auth/`: provider de usuario y token repository de recuperación basados en `email_hash`.
 - `src/app/Casts/EncryptedWithMasterKey.php`: cast para llaves privadas.
-- `src/resources/js/crypto.js`: componentes Alpine y cliente fetch con CSRF.
+- `src/resources/js/crypto.js`: componentes Alpine existentes y cliente fetch con CSRF.
+- `src/resources/js/labs.js`: componentes Alpine de los módulos avanzados.
+- `src/resources/views/components/lab-guide.blade.php`: instructivo reutilizable de cada laboratorio.
+- `src/resources/views/crypto/partials/subnav.blade.php`: subnavegación común.
 
 ## Convenciones
 
@@ -51,6 +60,9 @@ Ejecutar comandos de Laravel siempre dentro del contenedor `app` (o con `make`).
 - Los errores criptográficos deben ser mensajes en español sin filtrar llaves.
 - El laboratorio y la pantalla 5.4 requieren usuario autenticado y email verificado.
 - El admin solo accede a usuarios y auditoría; no puede editar cuentas desde la interfaz.
+- Cualquier demo insegura (ECB, MD5/SHA-1, nonce reuse) debe quedar en un endpoint aislado, con advertencia visible y sin reutilizar los servicios criptográficos reales.
+- Los módulos de archivos no deben persistir archivos; procesar en memoria y respetar el límite configurado.
+- Los instructivos deben incluir objetivo, pasos, resultado esperado, interpretación y nota para el docente.
 
 ## Seguridad
 
@@ -72,6 +84,8 @@ Ejecutar comandos de Laravel siempre dentro del contenedor `app` (o con `make`).
 - Las pruebas usan SQLite en memoria forzado en `phpunit.xml`; no deben tocar PostgreSQL.
 - Nunca escribir pruebas que dependan de claves reales del `.env`; usar las claves de prueba de `phpunit.xml`.
 - Cubrir: roundtrip, aleatoriedad de IV, detección de manipulación, verificación de firmas, autorización por propietario y ausencia de datos sensibles en logs.
+- Cubrir también archivos, AAD, X25519, ECDSA, firma+cifrado, X.509, importación PEM, timing, rainbow, benchmark, quiz y los instructivos presentes en las vistas.
+- Evitar pruebas frágiles basadas en tiempos exactos; validar estructura y resultados criptográficos.
 
 ## Docker
 
