@@ -108,6 +108,72 @@ final class Aes256Gcm implements SymmetricCipher
         return $plaintext;
     }
 
+    public function encryptWithAad(string $plaintext, string $key, string $aad): CryptoEnvelope
+    {
+        $rawKey = KeyCodec::decode($key, self::KEY_BYTES);
+        $iv = random_bytes(self::NONCE_BYTES);
+        $tag = '';
+
+        $ciphertext = openssl_encrypt(
+            $plaintext,
+            'aes-256-gcm',
+            $rawKey,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag,
+            $aad,
+            self::TAG_BYTES,
+        );
+
+        if ($ciphertext === false) {
+            throw new CryptoException('No se pudo cifrar con AES-256-GCM y AAD.');
+        }
+
+        return new CryptoEnvelope(
+            algorithm: $this->id(),
+            ciphertext: base64_encode($ciphertext),
+            iv: base64_encode($iv),
+            tag: base64_encode($tag),
+            meta: [
+                'key_bytes' => self::KEY_BYTES,
+                'tag_bytes' => self::TAG_BYTES,
+                'aad' => base64_encode($aad),
+            ],
+        );
+    }
+
+    public function decryptWithAad(CryptoEnvelope $envelope, string $key, string $aad): string
+    {
+        if ($envelope->algorithm !== $this->id()) {
+            throw CryptoException::invalidAlgorithm($envelope->algorithm);
+        }
+
+        $rawKey = KeyCodec::decode($key, self::KEY_BYTES);
+        $iv = base64_decode((string) $envelope->iv, true);
+        $tag = base64_decode((string) $envelope->tag, true);
+        $ciphertext = base64_decode($envelope->ciphertext, true);
+
+        if ($iv === false || strlen($iv) !== self::NONCE_BYTES || $tag === false || strlen($tag) !== self::TAG_BYTES || $ciphertext === false) {
+            throw CryptoException::invalidPayload($this->id());
+        }
+
+        $plaintext = openssl_decrypt(
+            $ciphertext,
+            'aes-256-gcm',
+            $rawKey,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag,
+            $aad,
+        );
+
+        if ($plaintext === false) {
+            throw CryptoException::decryptionFailed($this->id());
+        }
+
+        return $plaintext;
+    }
+
     public function metadata(): array
     {
         return [

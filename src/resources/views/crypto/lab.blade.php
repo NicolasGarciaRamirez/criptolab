@@ -12,6 +12,27 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <x-lab-guide
+                how="Cada módulo ejecuta una operación criptográfica real en el servidor; el historial guarda solo metadatos y los demos inseguros están aislados."
+                title="Laboratorio criptográfico"
+                objective="Explorar de forma práctica cifrado simétrico, asimétrico, firmas, hashes, intercambio de llaves y buenas prácticas."
+                :steps="[
+                    'Empieza por el laboratorio simétrico y el asimétrico para comprender lo básico.',
+                    'Prueba los módulos de archivos, X25519, AAD y firma+cifrado.',
+                    'Usa benchmark y comparador para interpretar costos y tamaños.',
+                    'Cierra con retos y autoevaluación.',
+                ]"
+                :expected="[
+                    'Cada módulo explica qué hace y qué resultado debe obtenerse.',
+                    'Las operaciones quedan en el historial sin guardar textos claros ni llaves privadas.',
+                    'Los demos marcados como inseguros no se usan en los flujos reales.',
+                ]"
+                teacher="Cada pantalla incluye un instructivo con objetivo, pasos y resultado esperado. La tabla del README resume la guía docente."
+                warning="Entorno educativo. No uses contraseñas reales."
+            />
+
             <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
                 <strong>Entorno educativo.</strong> Las operaciones se registran sin guardar textos claros ni llaves privadas. No uses contraseñas reales en el laboratorio.
             </div>
@@ -63,6 +84,32 @@
                     </p>
                 </a>
             @endif
+
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Módulos avanzados</h3>
+                <div class="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    @foreach ([
+                        ['crypto.symmetric.files', 'Archivos', 'Cifra y descifra archivos reales con algoritmos autenticados.', 'Simétrico'],
+                        ['crypto.symmetric.modes', 'Modos AES y nonce reuse', 'Compara ECB/CBC/CTR/GCM y observa la fuga de reutilizar nonce.', 'Simétrico'],
+                        ['crypto.symmetric.aad', 'AES-GCM con AAD', 'Autentica metadatos sin cifrarlos.', 'Simétrico'],
+                        ['crypto.asymmetric.x25519', 'X25519', 'Intercambio Diffie-Hellman y llave derivada.', 'Asimétrico'],
+                        ['crypto.asymmetric.sign-encrypt', 'Firma + cifrado', 'Firma con Ed25519 y cifra con el híbrido.', 'Asimétrico'],
+                        ['crypto.asymmetric.certificates', 'Certificados X.509', 'Genera e inspecciona un certificado autofirmado.', 'Asimétrico'],
+                        ['crypto.asymmetric.import', 'Importar llaves PEM', 'Inspecciona tipo, bits y fingerprint.', 'Asimétrico'],
+                        ['crypto.hash.timing', 'Tiempo seguro', '=== frente a hash_equals().', 'Hash'],
+                        ['crypto.hash.rainbow', 'Rainbow table', 'MD5/SHA-1 frente a Argon2id con salt.', 'Hash'],
+                        ['crypto.benchmark', 'Benchmark', 'Compara tiempos y operaciones/segundo.', 'General'],
+                        ['crypto.comparison', 'Comparador de overhead', 'Tamaños de llave, IV, tag y ciphertext.', 'General'],
+                        ['crypto.quiz', 'Retos', 'Autoevaluación por módulo.', 'General'],
+                    ] as [$route, $title, $description, $family])
+                        <a href="{{ route($route) }}" class="rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-gray-800">
+                            <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $family }}</p>
+                            <p class="mt-1 font-semibold text-gray-900 dark:text-gray-100">{{ $title }}</p>
+                            <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{{ $description }}</p>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

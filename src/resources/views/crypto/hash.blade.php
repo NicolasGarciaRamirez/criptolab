@@ -21,6 +21,40 @@
         })"
     >
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <x-lab-guide
+                how="El hash produce una huella de tamaño fijo; el salt y el costo hacen único cada hash de contraseña y difícil de precomputar."
+                title="Hash, HMAC y contraseñas"
+                objective="Diferenciar hash, HMAC, cifrado y Base64; comprobar que las contraseñas usan salt y que un hash no se descifra."
+                :steps="[
+                    'Calcula un digest con SHA-256 y repite con el mismo texto: debe ser idéntico.',
+                    'Cambia un carácter y observa el efecto avalancha en el hash.',
+                    'Calcula un HMAC con una llave y verifica el resultado esperado.',
+                    'Genera un hash bcrypt o Argon2id y verifica la contraseña correcta e incorrecta.',
+                    'Revisa la tabla comparativa: hash no es cifrado y Base64 no es ninguna de las dos cosas.',
+                ]"
+                :expected="[
+                    'El mismo texto y algoritmo producen el mismo digest.',
+                    'La contraseña correcta valida y la incorrecta falla.',
+                    'Dos hashes Argon2id de la misma contraseña son distintos por el salt aleatorio.',
+                    'HMAC cambia si cambia el mensaje o la llave.',
+                ]"
+                teacher="Evalúa que el estudiante explique por qué no se usa MD5/SHA-1 para contraseñas y por qué un salt evita tablas precomputadas."
+                warning="El demo de rainbow table usa un diccionario local y algoritmos obsoletos solo con fines educativos."
+            />
+
+            <div class="grid gap-3 sm:grid-cols-2">
+                <a href="{{ route('crypto.hash.timing') }}" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Comparación en tiempo constante</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">=== frente a hash_equals() y ataques de temporización.</p>
+                </a>
+                <a href="{{ route('crypto.hash.rainbow') }}" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Rainbow table</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">MD5/SHA-1 frente a Argon2id con salt.</p>
+                </a>
+            </div>
+
             <div class="rounded-lg border border-sky-300 bg-sky-50 p-4 text-sm text-sky-900 dark:border-sky-700 dark:bg-sky-950 dark:text-sky-200">
                 Un hash es una función irreversible: no se descifra. Sirve para integridad y para guardar contraseñas. Base64 no es cifrado ni hash: es solo una codificación reversible.
             </div>
@@ -128,7 +162,13 @@
             </section>
 
             <section class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Hash vs cifrado vs Base64</h3>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Hash vs cifrado vs Base64</h3>
+                    <div class="flex gap-3 text-xs">
+                        <button type="button" @click="exportSession('json')" class="underline text-indigo-600 dark:text-indigo-400">Exportar sesión JSON</button>
+                        <button type="button" @click="exportSession('csv')" class="underline text-indigo-600 dark:text-indigo-400">Exportar CSV</button>
+                    </div>
+                </div>
                 <div class="mt-4 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead>

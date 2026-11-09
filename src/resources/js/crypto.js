@@ -61,12 +61,87 @@ function downloadJson(filename, data) {
     downloadText(filename, JSON.stringify(data, null, 2), 'application/json');
 }
 
+function downloadBase64(filename, base64, mime = 'application/octet-stream') {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    const blob = new Blob([bytes], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function downloadCsv(filename, rows) {
+    const escape = (value) => {
+        const text = String(value ?? '');
+        return `"${text.replaceAll('"', '""')}"`;
+    };
+
+    downloadText(filename, rows.map((row) => row.map(escape).join(',')).join('\n'), 'text/csv');
+}
+
+async function postForm(url, formData) {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken(),
+        },
+        body: formData,
+    });
+
+    let payload = null;
+
+    try {
+        payload = await response.json();
+    } catch {
+        throw new Error(`La respuesta del servidor no es JSON (HTTP ${response.status}).`);
+    }
+
+    if (!response.ok) {
+        if (payload?.errors) {
+            throw new Error(Object.values(payload.errors).flat()[0] ?? payload.message);
+        }
+
+        throw new Error(payload?.message ?? `Error HTTP ${response.status}.`);
+    }
+
+    return payload;
+}
+
+async function getJson(url) {
+    const response = await fetch(url, {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken(),
+        },
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+        throw new Error(payload?.message ?? `Error HTTP ${response.status}.`);
+    }
+
+    return payload;
+}
+
 window.CryptoLab = {
     post: postJson,
+    postForm,
+    get: getJson,
     copy: copyText,
     bytes: formatBytes,
     downloadText,
     downloadJson,
+    downloadBase64,
+    downloadCsv,
 };
 
 document.addEventListener('alpine:init', () => {
@@ -83,6 +158,7 @@ document.addEventListener('alpine:init', () => {
         error: '',
         loading: false,
         copied: '',
+        session: [],
         kdfMethod: 'pbkdf2',
         passphrase: 'frase secreta de ejemplo',
         salt: '',
@@ -136,6 +212,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 this.result = data;
                 this.payload = data.envelope_json;
+                this.addSession('cifrar', data);
             } catch (error) {
                 this.error = error.message;
             } finally {
@@ -148,11 +225,13 @@ document.addEventListener('alpine:init', () => {
             this.error = '';
 
             try {
-                this.result = await CryptoLab.post(this.routes.decrypt, {
+                const data = await CryptoLab.post(this.routes.decrypt, {
                     algorithm: this.algorithm,
                     key: this.key,
                     payload: this.payload,
                 });
+                this.result = data;
+                this.addSession('descifrar', data);
             } catch (error) {
                 this.error = error.message;
             } finally {
@@ -165,11 +244,13 @@ document.addEventListener('alpine:init', () => {
             this.error = '';
 
             try {
-                this.result = await CryptoLab.post(this.routes.iv, {
+                const data = await CryptoLab.post(this.routes.iv, {
                     algorithm: this.algorithm,
                     plaintext: this.plaintext,
                     key: this.key,
                 });
+                this.result = data;
+                this.addSession('iv-demo', data);
             } catch (error) {
                 this.error = error.message;
             } finally {
@@ -201,6 +282,71 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        addSession(operation, data) {
+            this.session.unshift({ operation, at: new Date().toISOString(), data });
+        },
+
+        exportSession(format) {
+            const rows = this.session.map((item) => ({
+                operation: item.operation,
+                at: item.at,
+                algorithm: item.data.algorithm ?? item.data.label ?? '',
+                plaintext_bytes: item.data.sizes?.plaintext ?? '',
+                ciphertext_bytes: item.data.sizes?.ciphertext ?? '',
+                result: JSON.stringify(item.data),
+            }));
+
+            if (format === 'csv') {
+                window.CryptoLab.downloadCsv('criptolab-simetrico.csv', [
+                    ['operacion', 'fecha', 'algoritmo', 'bytes_claro', 'bytes_cifrado', 'resultado'],
+                    ...rows.map((row) => [row.operation, row.at, row.algorithm, row.plaintext_bytes, row.ciphertext_bytes, row.result]),
+                ]);
+            } else {
+                window.CryptoLab.downloadJson('criptolab-simetrico.json', { session: this.session });
+            }
+        },
+
+        async tamperAndDecrypt() {
+            this.error = '';
+            this.loading = true;
+
+            try {
+                if (!this.selected?.metadata?.authenticated) {
+                    throw new Error('Este algoritmo no autentica; la manipulación no se puede detectar. Prueba AES-GCM, ChaCha20 o XSalsa20.');
+                }
+
+                if (!this.payload) {
+                    throw new Error('Primero cifra un texto para tener un sobre que manipular.');
+                }
+
+                const envelope = JSON.parse(this.payload);
+                const raw = atob(envelope.ciphertext ?? '');
+                const bytes = new Uint8Array(raw.length);
+
+                for (let i = 0; i < raw.length; i++) {
+                    bytes[i] = raw.charCodeAt(i);
+                }
+
+                bytes[0] ^= 0x01;
+                envelope.ciphertext = btoa(String.fromCharCode(...bytes));
+
+                try {
+                    await CryptoLab.post(this.routes.decrypt, {
+                        algorithm: this.algorithm,
+                        key: this.key,
+                        payload: JSON.stringify(envelope),
+                    });
+                    this.error = 'El descifrado aceptó el ciphertext manipulado: esto sería un fallo.';
+                } catch (error) {
+                    this.error = 'Manipulación detectada correctamente: ' + error.message;
+                }
+            } catch (error) {
+                this.error = error.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async copy(value, label = 'valor') {
             try {
                 await CryptoLab.copy(value);
@@ -224,7 +370,7 @@ document.addEventListener('alpine:init', () => {
         keyName: '',
         saveKey: false,
         keyPassphrase: '',
-        pair: null,
+        pair: { public_key: '', private_key: '', fingerprint: '', algorithm: '', label: '' },
         keyError: '',
         keyLoading: false,
 
@@ -238,6 +384,7 @@ document.addEventListener('alpine:init', () => {
         decrypted: '',
         operationError: '',
         operationLoading: false,
+        session: [],
 
         signerAlgorithm: config.defaultSigner ?? 'rsa-sha256-2048',
         signerPublic: '',
@@ -321,6 +468,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 this.encrypted = data;
                 this.payload = data.envelope_json;
+                this.addSession('cifrar', data);
             } catch (error) {
                 this.operationError = error.message;
             } finally {
@@ -340,6 +488,7 @@ document.addEventListener('alpine:init', () => {
                     passphrase: this.decryptPassphrase || null,
                 });
                 this.decrypted = data.plaintext;
+                this.addSession('descifrar', data);
             } catch (error) {
                 this.operationError = error.message;
             } finally {
@@ -361,6 +510,7 @@ document.addEventListener('alpine:init', () => {
                 this.signature = data.signature;
                 this.verifySignature = data.signature;
                 this.verifyMessage = this.message;
+                this.addSession('firmar', data);
             } catch (error) {
                 this.signerError = error.message;
             } finally {
@@ -379,10 +529,71 @@ document.addEventListener('alpine:init', () => {
                     signature: this.verifySignature,
                     public_key: this.verifyPublic,
                 });
+                this.addSession('verificar', this.verifyResult);
             } catch (error) {
                 this.signerError = error.message;
             } finally {
                 this.signerLoading = false;
+            }
+        },
+
+        addSession(operation, data) {
+            this.session.unshift({ operation, at: new Date().toISOString(), data });
+        },
+
+        exportSession(format) {
+            const rows = this.session.map((item) => ({
+                operation: item.operation,
+                at: item.at,
+                algorithm: item.data.algorithm ?? '',
+                result: JSON.stringify(item.data),
+            }));
+
+            if (format === 'csv') {
+                window.CryptoLab.downloadCsv('criptolab-asimetrico.csv', [
+                    ['operacion', 'fecha', 'algoritmo', 'resultado'],
+                    ...rows.map((row) => [row.operation, row.at, row.algorithm, row.result]),
+                ]);
+            } else {
+                window.CryptoLab.downloadJson('criptolab-asimetrico.json', { session: this.session });
+            }
+        },
+
+        async tamperAndDecrypt() {
+            this.operationError = '';
+            this.operationLoading = true;
+
+            try {
+                if (!this.payload || !this.privateKey) {
+                    throw new Error('Primero cifra un texto y conserva la llave privada para poder probar la manipulación.');
+                }
+
+                const envelope = JSON.parse(this.payload);
+                const raw = atob(envelope.ciphertext ?? '');
+                const bytes = new Uint8Array(raw.length);
+
+                for (let i = 0; i < raw.length; i++) {
+                    bytes[i] = raw.charCodeAt(i);
+                }
+
+                bytes[0] ^= 0x01;
+                envelope.ciphertext = btoa(String.fromCharCode(...bytes));
+
+                try {
+                    await CryptoLab.post(this.routes.decrypt, {
+                        algorithm: this.encryptAlgorithm,
+                        payload: JSON.stringify(envelope),
+                        private_key: this.privateKey,
+                        passphrase: this.decryptPassphrase || null,
+                    });
+                    this.operationError = 'El descifrado aceptó el ciphertext manipulado: esto sería un fallo.';
+                } catch (error) {
+                    this.operationError = 'Manipulación detectada correctamente: ' + error.message;
+                }
+            } catch (error) {
+                this.operationError = error.message;
+            } finally {
+                this.operationLoading = false;
             }
         },
 
@@ -425,6 +636,7 @@ document.addEventListener('alpine:init', () => {
         verifyResult: null,
         error: '',
         loading: false,
+        session: [],
 
         async digest() {
             this.loading = true;
@@ -436,6 +648,7 @@ document.addEventListener('alpine:init', () => {
                     text: this.text,
                 });
                 this.digestResult = data.result;
+                this.session.unshift({ operation: 'digest', at: new Date().toISOString(), data: data.result });
             } catch (error) {
                 this.error = error.message;
             } finally {
@@ -453,6 +666,7 @@ document.addEventListener('alpine:init', () => {
                     key: this.hmacKey,
                     expected: this.hmacExpected || null,
                 });
+                this.session.unshift({ operation: 'hmac', at: new Date().toISOString(), data: this.hmacResult });
             } catch (error) {
                 this.error = error.message;
             } finally {
@@ -471,6 +685,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 this.passwordResult = data.result;
                 this.verifyHash = data.result.hash;
+                this.session.unshift({ operation: 'password_hash', at: new Date().toISOString(), data: data.result });
             } catch (error) {
                 this.error = error.message;
             } finally {
@@ -487,10 +702,28 @@ document.addEventListener('alpine:init', () => {
                     password: this.verifyPassword,
                     hash: this.verifyHash,
                 });
+                this.session.unshift({ operation: 'password_verify', at: new Date().toISOString(), data: this.verifyResult });
             } catch (error) {
                 this.error = error.message;
             } finally {
                 this.loading = false;
+            }
+        },
+
+        exportSession(format) {
+            const rows = this.session.map((item) => ({
+                operation: item.operation,
+                at: item.at,
+                result: JSON.stringify(item.data),
+            }));
+
+            if (format === 'csv') {
+                window.CryptoLab.downloadCsv('criptolab-hash.csv', [
+                    ['operacion', 'fecha', 'resultado'],
+                    ...rows.map((row) => [row.operation, row.at, row.result]),
+                ]);
+            } else {
+                window.CryptoLab.downloadJson('criptolab-hash.json', { session: this.session });
             }
         },
 
@@ -513,8 +746,11 @@ document.addEventListener('alpine:init', () => {
 
     window.Alpine.data('authDemoPage', (config) => ({
         decryptTemplate: config.decryptTemplate ?? '',
+        tamperTemplate: config.tamperTemplate ?? '',
+        rawTemplate: config.rawTemplate ?? '',
         decryptingId: null,
         decrypted: null,
+        raw: null,
         error: '',
         copied: '',
         statusMessage: '',
@@ -532,6 +768,32 @@ document.addEventListener('alpine:init', () => {
                 this.error = error.message;
             } finally {
                 this.decryptingId = null;
+            }
+        },
+
+        async showRaw(id) {
+            this.error = '';
+            this.raw = null;
+
+            try {
+                const url = this.rawTemplate.replace('__ID__', String(id));
+                const data = await CryptoLab.get(url);
+                this.raw = data.row;
+            } catch (error) {
+                this.error = error.message;
+            }
+        },
+
+        async tamper(id) {
+            this.error = '';
+            this.statusMessage = '';
+
+            try {
+                const url = this.tamperTemplate.replace('__ID__', String(id));
+                await CryptoLab.post(url, {});
+                this.error = 'El descifrado aceptó el ciphertext manipulado: esto sería un fallo.';
+            } catch (error) {
+                this.error = 'Manipulación detectada correctamente: ' + error.message;
             }
         },
 

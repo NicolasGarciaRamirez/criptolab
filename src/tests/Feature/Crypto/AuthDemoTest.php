@@ -190,6 +190,74 @@ class AuthDemoTest extends TestCase
             ->assertJsonPath('ok', false);
     }
 
+    public function test_entry_can_be_reencrypted_with_new_iv(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('crypto.auth-demo.store'), [
+            'username' => 'ana',
+            'password' => 'ClaveDemo#2026',
+            'sym_algorithm' => 'aes-256-gcm',
+            'asym_algorithm' => 'rsa-oaep-2048',
+        ]);
+
+        $original = CryptoDemoEntry::firstOrFail();
+
+        $this->actingAs($user)->post(route('crypto.auth-demo.reencrypt', $original->id))
+            ->assertRedirect(route('crypto.auth-demo'));
+
+        $this->assertSame(2, CryptoDemoEntry::count());
+        $new = CryptoDemoEntry::latest('id')->firstOrFail();
+        $this->assertNotSame($original->username_encrypted, $new->username_encrypted);
+        $this->assertSame($original->username_plain, $new->username_plain);
+    }
+
+    public function test_tamper_endpoint_rejects_manipulated_ciphertext(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('crypto.auth-demo.store'), [
+            'username' => 'ana',
+            'password' => 'ClaveDemo#2026',
+            'sym_algorithm' => 'aes-256-gcm',
+            'asym_algorithm' => 'rsa-oaep-2048',
+        ]);
+
+        $entry = CryptoDemoEntry::firstOrFail();
+
+        $this->actingAs($user)->postJson(route('crypto.auth-demo.tamper', $entry->id))
+            ->assertStatus(422)
+            ->assertJsonPath('ok', false);
+
+        $this->assertDatabaseHas('crypto_demo_entries', ['id' => $entry->id]);
+    }
+
+    public function test_raw_row_and_csv_export_are_owner_only(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+
+        $this->actingAs($owner)->post(route('crypto.auth-demo.store'), [
+            'username' => 'ana',
+            'password' => 'ClaveDemo#2026',
+            'sym_algorithm' => 'aes-256-gcm',
+            'asym_algorithm' => 'rsa-oaep-2048',
+        ]);
+
+        $entry = CryptoDemoEntry::firstOrFail();
+
+        $this->actingAs($owner)->getJson(route('crypto.auth-demo.raw', $entry->id))
+            ->assertOk()
+            ->assertJsonPath('row.id', $entry->id)
+            ->assertJsonMissingPath('row.password_plain');
+
+        $this->actingAs($other)->getJson(route('crypto.auth-demo.raw', $entry->id))->assertNotFound();
+
+        $csv = $this->actingAs($owner)->get(route('crypto.auth-demo.export-csv'));
+        $csv->assertOk();
+        $this->assertStringContainsString('usuario_claro', $csv->streamedContent());
+    }
+
     public function test_plaintext_is_not_written_to_audit_or_operation_logs(): void
     {
         $user = User::factory()->create();

@@ -1,4 +1,5 @@
 import './crypto';
+import './labs';
 
 import Alpine from 'alpinejs';
 

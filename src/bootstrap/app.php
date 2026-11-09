@@ -35,6 +35,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'passphrase',
             'expected',
             'ciphertext',
+            'aad',
+            'value_a',
+            'value_b',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -45,6 +48,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'private_key',
             'key',
             'passphrase',
+            'signing_private_key',
+            'encryption_private_key',
+            'certificate_private_key',
         ]);
 
         $exceptions->shouldRenderJsonWhen(

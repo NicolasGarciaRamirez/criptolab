@@ -23,4 +23,6 @@ return [
     |
     */
     'blind_index_key' => env('CRYPTO_BLIND_INDEX_KEY'),
+
+    'file_max_bytes' => (int) env('CRYPTO_FILE_MAX_BYTES', 5 * 1024 * 1024),
 ];

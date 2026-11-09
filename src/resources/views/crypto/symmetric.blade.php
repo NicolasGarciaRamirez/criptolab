@@ -22,6 +22,44 @@
         })"
     >
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <x-lab-guide
+                how="Una llave secreta y un IV/nonce aleatorio alimentan OpenSSL o Sodium; GCM, ChaCha20 y XSalsa20 agregan un tag que autentica el ciphertext."
+                title="Cifrado simétrico"
+                objective="Comprender cómo una misma llave cifra y descifra, y por qué el IV/nonce debe ser aleatorio."
+                :steps="[
+                    'Elige un algoritmo; empieza con AES-256-GCM.',
+                    'Pulsa Generar llave y observa el tamaño en bytes y su representación Base64/hex.',
+                    'Escribe un texto, pulsa Cifrar y revisa el sobre JSON: IV/nonce, tag y ciphertext.',
+                    'Copia el sobre en el campo de descifrado, pulsa Descifrar y comprueba que vuelve el texto original.',
+                    'Pulsa Re-cifrar y comparar IV para ver dos cifrados del mismo texto.',
+                    'En algoritmos autenticados, altera el ciphertext y verifica que el descifrado falla.',
+                ]"
+                :expected="[
+                    'El texto descifrado es idéntico al original.',
+                    'Dos cifrados del mismo texto producen IV y ciphertext distintos.',
+                    'GCM, ChaCha20-Poly1305 y XSalsa20 rechazan un ciphertext alterado; CBC/CTR no autentican.',
+                ]"
+                teacher="Evalúa que el estudiante identifique llave, IV/nonce, tag y la diferencia entre modos autenticados y no autenticados."
+                warning="No uses contraseñas reales. Los demos de ECB, nonce reutilizado y comparación de tiempos están aislados y marcados como inseguros."
+            />
+
+            <div class="grid gap-3 sm:grid-cols-3">
+                <a href="{{ route('crypto.symmetric.files') }}" class="rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Cifrado de archivos</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Sube un archivo y descarga su versión cifrada o descifrada.</p>
+                </a>
+                <a href="{{ route('crypto.symmetric.modes') }}" class="rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Modos AES y nonce reuse</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Compara ECB/CBC/CTR/GCM y observa por qué no se reutiliza el nonce.</p>
+                </a>
+                <a href="{{ route('crypto.symmetric.aad') }}" class="rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">AES-GCM con AAD</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Autentica datos asociados sin cifrarlos.</p>
+                </a>
+            </div>
+
             <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
                 En cifrado simétrico la misma llave cifra y descifra. El IV/nonce se genera con <code>random_bytes()</code> en cada operación y nunca se reutiliza.
             </div>
@@ -111,7 +149,7 @@
 
                     <div class="flex flex-wrap gap-2">
                         <button type="button" @click="encrypt()" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700" :disabled="loading">Cifrar</button>
-                        <button type="button" @click="demonstrateIv()" class="rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700" :disabled="loading">Demostrar IV aleatorio</button>
+                        <button type="button" @click="demonstrateIv()" class="rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700" :disabled="loading">Re-cifrar y comparar IV</button>
                     </div>
 
                     <div>
@@ -124,9 +162,14 @@
                 </section>
 
                 <section class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Resultado</h3>
-                        <button type="button" @click="copy(resultJson, 'resultado')" class="text-xs underline text-indigo-600 dark:text-indigo-400">Copiar JSON</button>
+                        <div class="flex flex-wrap gap-3 text-xs">
+                            <button type="button" @click="copy(resultJson, 'resultado')" class="underline text-indigo-600 dark:text-indigo-400">Copiar JSON</button>
+                            <button type="button" @click="exportSession('json')" class="underline text-indigo-600 dark:text-indigo-400">Exportar sesión JSON</button>
+                            <button type="button" @click="exportSession('csv')" class="underline text-indigo-600 dark:text-indigo-400">Exportar CSV</button>
+                            <button type="button" @click="tamperAndDecrypt()" class="underline text-amber-700 dark:text-amber-300">Alterar y descifrar</button>
+                        </div>
                     </div>
                     <p x-show="copied === 'resultado'" x-cloak class="text-xs text-emerald-600 dark:text-emerald-400">Resultado copiado.</p>
 

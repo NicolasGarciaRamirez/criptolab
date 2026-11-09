@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\Crypto\Asymmetric\EcdsaSigner;
 use App\Services\Crypto\Asymmetric\Ed25519Signer;
 use App\Services\Crypto\Asymmetric\HybridEncryption;
 use App\Services\Crypto\Asymmetric\RsaOaep;
@@ -55,6 +56,8 @@ class CryptoServiceProvider extends ServiceProvider
                 'rsa-sha256-2048' => new RsaSigner(2048),
                 'rsa-sha256-4096' => new RsaSigner(4096),
                 'ed25519' => new Ed25519Signer,
+                'ecdsa-p256' => new EcdsaSigner('prime256v1', 'ecdsa-p256'),
+                'ecdsa-p384' => new EcdsaSigner('secp384r1', 'ecdsa-p384'),
             ]);
         });
     }

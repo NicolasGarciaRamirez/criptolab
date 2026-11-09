@@ -83,6 +83,23 @@ final class KeypairService
         return (string) $keypair->private_key_encrypted;
     }
 
+    public function saveImported(
+        User $user,
+        string $algorithm,
+        string $name,
+        string $publicKey,
+        #[SensitiveParameter] string $privateKey,
+    ): CryptoKeypair {
+        return CryptoKeypair::create([
+            'user_id' => $user->id,
+            'name' => $name,
+            'algorithm' => $algorithm,
+            'public_key' => $publicKey,
+            'private_key_encrypted' => $privateKey,
+            'fingerprint' => hash('sha256', $publicKey),
+        ]);
+    }
+
     public function delete(CryptoKeypair $keypair): void
     {
         $keypair->delete();

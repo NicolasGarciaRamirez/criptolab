@@ -7,8 +7,9 @@
                 </h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Usuario con cifrado simétrico y contraseña con cifrado asimétrico (configurable).</p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-wrap gap-3">
                 <a href="{{ route('crypto.auth-demo.export') }}" class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600">Exportar JSON</a>
+                <a href="{{ route('crypto.auth-demo.export-csv') }}" class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600">Exportar CSV</a>
                 <a href="{{ route('crypto.lab') }}" class="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">Laboratorio</a>
             </div>
         </div>
@@ -16,11 +17,48 @@
 
     <div
         class="py-8"
-        x-data="authDemoPage({ decryptTemplate: @js(url('/lab/autenticacion-cifrada/__ID__/descifrar')) })"
+        x-data="authDemoPage({
+            decryptTemplate: @js(url('/lab/autenticacion-cifrada/__ID__/descifrar')),
+            tamperTemplate: @js(url('/lab/autenticacion-cifrada/__ID__/alterar')),
+            rawTemplate: @js(url('/lab/autenticacion-cifrada/__ID__/crudo')),
+        })"
     >
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <x-lab-guide
+                how="El servidor cifra el usuario con simétrica y la contraseña con asimétrica; guarda la llave simétrica cifrada y conserva la privada para descifrar."
+                title="Formulario de autenticación cifrado (5.4)"
+                objective="Replicar el ejercicio de autenticación cifrada: usuario simétrico, contraseña asimétrica y demostración de reversibilidad."
+                :steps="[
+                    'Escribe un usuario y una contraseña de demostración.',
+                    'Elige el algoritmo simétrico y el asimétrico; deja AES-256-GCM y RSA-OAEP 2048 por defecto.',
+                    'Opcionalmente invierte las familias para cifrar el usuario con asimétrico y la contraseña con simétrico.',
+                    'Guarda y observa la tabla con texto claro, ciphertext, algoritmos y fecha.',
+                    'Pulsa Descifrar para verificar la reversibilidad; Re-cifrar para generar un IV nuevo; Alterar para comprobar que la manipulación falla.',
+                    'Pulsa Ver BD para ver la fila cifrada tal como está almacenada y exporta JSON o CSV.',
+                ]"
+                :expected="[
+                    'La tabla muestra el texto en claro y el texto cifrado de usuario y contraseña.',
+                    'Descifrar devuelve exactamente los valores originales.',
+                    'Re-cifrar crea otra fila con un ciphertext distinto y una fecha nueva.',
+                    'Alterar el ciphertext produce un error de autenticación.',
+                    'La vista de BD muestra los campos cifrados de la fila, no el texto original.',
+                ]"
+                teacher="Evalúa que el estudiante explique por qué esta pantalla es educativa y por qué el login real usa Argon2id en lugar de cifrado reversible."
+                warning="Mostrar contraseñas en claro NUNCA debe hacerse en un sistema real. Esta pantalla es una excepción académica."
+            />
+
             <div class="rounded-lg border-2 border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-700 dark:bg-red-950 dark:text-red-100">
                 <strong>Aviso importante:</strong> esta pantalla es solo educativa. Mostrar contraseñas en claro NUNCA debe hacerse en un sistema real. El login real de CriptoLab guarda únicamente hashes Argon2id.
+            </div>
+
+            <div x-show="raw" x-cloak class="rounded-lg border border-violet-300 bg-violet-50 p-4 text-sm dark:border-violet-700 dark:bg-violet-950">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-violet-900 dark:text-violet-100">Fila cruda en PostgreSQL</h3>
+                    <button type="button" class="text-xs underline text-violet-800 dark:text-violet-200" @click="raw = null">Cerrar</button>
+                </div>
+                <pre class="mt-2 max-h-80 overflow-auto rounded-md bg-gray-950 p-3 text-xs text-gray-100" x-text="JSON.stringify(raw, null, 2)"></pre>
             </div>
 
             @if (session('status'))
@@ -162,6 +200,12 @@
                                                 <span x-show="decryptingId !== {{ $entry->id }}">Descifrar</span>
                                                 <span x-show="decryptingId === {{ $entry->id }}">Descifrando…</span>
                                             </button>
+                                            <form method="POST" action="{{ route('crypto.auth-demo.reencrypt', $entry->id) }}">
+                                                @csrf
+                                                <button type="submit" class="text-xs underline text-indigo-600 dark:text-indigo-400">Re-cifrar</button>
+                                            </form>
+                                            <button type="button" class="text-xs underline text-amber-700 dark:text-amber-300" @click="tamper({{ $entry->id }})">Alterar</button>
+                                            <button type="button" class="text-xs underline text-violet-700 dark:text-violet-300" @click="showRaw({{ $entry->id }})">Ver BD</button>
                                             <form method="POST" action="{{ route('crypto.auth-demo.destroy', $entry->id) }}" onsubmit="return confirm('¿Eliminar este registro de demostración?');">
                                                 @csrf
                                                 @method('DELETE')

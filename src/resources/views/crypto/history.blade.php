@@ -10,6 +10,25 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <x-lab-guide
+                how="Cada operación registra tipo, algoritmo, contexto, estado y fecha; nunca guarda entradas, salidas ni llaves."
+                title="Historial de operaciones"
+                objective="Revisar qué operaciones se ejecutaron y comprobar que no se guardan textos claros ni llaves privadas."
+                :steps="[
+                    'Filtra por tipo o algoritmo.',
+                    'Revisa fecha, contexto y estado de cada operación.',
+                    'Comprueba que solo aparecen metadatos.',
+                ]"
+                :expected="[
+                    'El historial muestra operaciones exitosas y fallidas.',
+                    'No aparecen textos claros, contraseñas ni llaves privadas.',
+                ]"
+                teacher="Pida al estudiante identificar una operación de cifrado y una de verificación fallida."
+                warning="El historial es solo de metadatos; no guarda entradas ni salidas criptográficas."
+            />
+
             <form method="GET" action="{{ route('crypto.history') }}" class="flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
                 <div>
                     <x-input-label for="type" value="Tipo" />

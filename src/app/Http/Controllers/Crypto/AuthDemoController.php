@@ -12,11 +12,13 @@ use App\Models\CryptoDemoEntry;
 use App\Services\Audit\AuditService;
 use App\Services\Crypto\AuthDemoService;
 use App\Services\Crypto\CryptoOperationService;
+use App\Services\Crypto\Dto\CryptoEnvelope;
 use App\Services\Crypto\Registries\AsymmetricCipherRegistry;
 use App\Services\Crypto\Registries\SymmetricCipherRegistry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
@@ -114,6 +116,120 @@ class AuthDemoController extends Controller
         $model->delete();
 
         return redirect()->route('crypto.auth-demo')->with('status', 'Registro eliminado.');
+    }
+
+    public function reencrypt(Request $request, int $entry): RedirectResponse
+    {
+        try {
+            $model = $this->ownedEntry($request, $entry);
+            $new = $this->demo->reencrypt($model);
+
+            $this->audit->log($request->user(), 'demo_entry_reencrypted', 'Registro de demostración re-cifrado con nuevo IV', [
+                'source_entry_id' => $model->id,
+                'entry_id' => $new->id,
+            ]);
+            $this->operations->log('reencrypt', $new->sym_algorithm.'+'.$new->asym_algorithm, $request->user(), 'auth-demo');
+
+            return redirect()->route('crypto.auth-demo')
+                ->with('status', 'Registro re-cifrado con un IV y una llave nuevos (nueva fila creada).');
+        } catch (HttpExceptionInterface $exception) {
+            throw $exception;
+        } catch (CryptoException $exception) {
+            return back()->withErrors(['demo' => $exception->getMessage()]);
+        }
+    }
+
+    public function tamper(Request $request, int $entry): JsonResponse
+    {
+        try {
+            $model = $this->ownedEntry($request, $entry);
+            $envelope = CryptoEnvelope::fromJson($model->password_encrypted);
+            $symmetric = $this->symmetric->all()[$envelope->algorithm] ?? null;
+
+            if ($symmetric !== null && ($symmetric->metadata()['authenticated'] ?? false) !== true) {
+                throw new CryptoException('Ese algoritmo simétrico no autentica; la manipulación no se puede detectar. Cambia a GCM o ChaCha20.');
+            }
+
+            $raw = base64_decode($envelope->ciphertext, true);
+
+            if ($raw === false || $raw === '') {
+                throw new \RuntimeException('El ciphertext no se pudo preparar para la demostración.');
+            }
+
+            $raw[0] = chr(ord($raw[0]) ^ 0x01);
+            $clone = $model->replicate();
+            $clone->password_encrypted = (new CryptoEnvelope(
+                algorithm: $envelope->algorithm,
+                ciphertext: base64_encode($raw),
+                iv: $envelope->iv,
+                tag: $envelope->tag,
+                meta: $envelope->meta,
+            ))->toJson();
+
+            $this->demo->decrypt($clone);
+
+            return $this->cryptoSuccess([
+                'message' => 'El sistema aceptó el ciphertext manipulado. Esto no debería ocurrir.',
+            ]);
+        } catch (HttpExceptionInterface $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            return $this->cryptoFailure($exception);
+        }
+    }
+
+    public function raw(Request $request, int $entry): JsonResponse
+    {
+        $model = $this->ownedEntry($request, $entry);
+        $raw = DB::table('crypto_demo_entries')->where('id', $model->id)->first();
+
+        $this->operations->log('raw_view', 'database', $request->user(), 'auth-demo');
+
+        return $this->cryptoSuccess([
+            'row' => [
+                'id' => $raw->id,
+                'username_plain_ciphertext' => $raw->username_plain,
+                'username_encrypted' => $raw->username_encrypted,
+                'password_plain_ciphertext' => $raw->password_plain,
+                'password_encrypted' => $raw->password_encrypted,
+                'sym_algorithm' => $raw->sym_algorithm,
+                'asym_algorithm' => $raw->asym_algorithm,
+                'meta' => $raw->meta,
+            ],
+        ]);
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $entries = $this->demo->export($request->user());
+        $this->operations->log('export_demo_entries', 'csv', $request->user(), 'auth-demo');
+        $this->audit->log($request->user(), 'demo_entries_exported', 'Registros de demostración exportados a CSV');
+
+        return response()->streamDownload(function () use ($entries): void {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['id', 'usuario_claro', 'usuario_cifrado', 'password_claro', 'password_cifrado', 'sim_algorithm', 'asym_algorithm', 'swap', 'created_at']);
+
+            foreach ($entries as $entry) {
+                fputcsv($output, [
+                    $entry['id'],
+                    $this->csvSafe($entry['username_plain']),
+                    $entry['username_encrypted'],
+                    $this->csvSafe($entry['password_plain']),
+                    $entry['password_encrypted'],
+                    $entry['sym_algorithm'],
+                    $entry['asym_algorithm'],
+                    $entry['swap'] ? '1' : '0',
+                    $entry['created_at'],
+                ]);
+            }
+
+            fclose($output);
+        }, 'criptolab-demostracion.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    private function csvSafe(string $value): string
+    {
+        return preg_match('/^[=+\-@]/', $value) === 1 ? "'".$value : $value;
     }
 
     public function export(Request $request)

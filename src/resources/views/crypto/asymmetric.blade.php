@@ -24,6 +24,53 @@
         })"
     >
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <div class="flex justify-end gap-3 text-xs">
+                <button type="button" @click="exportSession('json')" class="underline text-indigo-600 dark:text-indigo-400">Exportar sesión JSON</button>
+                <button type="button" @click="exportSession('csv')" class="underline text-indigo-600 dark:text-indigo-400">Exportar CSV</button>
+            </div>
+
+            <x-lab-guide
+                how="La llave pública cifra y la privada descifra; la firma usa la privada y se verifica con la pública."
+                title="Cifrado asimétrico y firmas digitales"
+                objective="Diferenciar llave pública/privada, cifrar y descifrar, firmar y verificar, y entender por qué RSA necesita el modo híbrido."
+                :steps="[
+                    'Genera un par de llaves RSA, sealed box o híbrido. Guarda la llave pública y conserva la privada solo para esta sesión.',
+                    'Cifra un texto con la llave pública y descífralo con la privada.',
+                    'Genera un par de firma (Ed25519, RSA-SHA256 o ECDSA), firma un mensaje y verifica la firma.',
+                    'Cambia un carácter del mensaje y vuelve a verificar: debe fallar.',
+                    'Prueba a alterar el ciphertext y descifrar: debe fallar.',
+                ]"
+                :expected="[
+                    'El texto descifrado coincide con el original.',
+                    'La firma válida devuelve true y el mensaje alterado devuelve false.',
+                    'RSA-OAEP rechaza mensajes que superan su límite; el híbrido acepta textos largos.',
+                    'Las llaves privadas no se muestran de nuevo al recargar la página.',
+                ]"
+                teacher="Evalúa la diferencia entre cifrar (confidencialidad) y firmar (autenticidad/integridad), y que el estudiante explique el límite de RSA."
+                warning="No uses llaves privadas reales en el laboratorio. La passphrase opcional se admite para el PEM generado, pero no se usa para recuperar llaves guardadas."
+            />
+
+            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <a href="{{ route('crypto.asymmetric.x25519') }}" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Intercambio X25519</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Dos partes obtienen el mismo secreto sin enviarlo.</p>
+                </a>
+                <a href="{{ route('crypto.asymmetric.sign-encrypt') }}" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Firma + cifrado</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Firmar y luego cifrar en un solo flujo.</p>
+                </a>
+                <a href="{{ route('crypto.asymmetric.certificates') }}" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Certificados X.509</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Generar y verificar un certificado autofirmado.</p>
+                </a>
+                <a href="{{ route('crypto.asymmetric.import') }}" class="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Importar llaves PEM</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Inspeccionar, calcular fingerprint y guardar si se solicita.</p>
+                </a>
+            </div>
+
             <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
                 La llave privada se muestra una sola vez. Si marcas "guardar", el sistema la almacena cifrada con la llave maestra, pero no volverá a mostrarla.
             </div>
@@ -58,7 +105,7 @@
 
                 <div x-show="keyError" x-cloak class="mt-3 rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-200" x-text="keyError"></div>
 
-                <div x-show="pair" x-cloak class="mt-4 grid gap-4 lg:grid-cols-2">
+                <div x-show="pair.public_key" x-cloak class="mt-4 grid gap-4 lg:grid-cols-2">
                     <div>
                         <div class="flex items-center justify-between">
                             <x-input-label value="Llave pública" />
@@ -127,7 +174,10 @@
                         <x-input-label for="decrypt-passphrase" value="Passphrase (si la llave está protegida)" />
                         <input id="decrypt-passphrase" x-model="decryptPassphrase" type="password" autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
                     </div>
-                    <button type="button" @click="decrypt()" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" :disabled="operationLoading">Descifrar</button>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" @click="decrypt()" class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" :disabled="operationLoading">Descifrar</button>
+                        <button type="button" @click="tamperAndDecrypt()" class="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700" :disabled="operationLoading">Alterar ciphertext y descifrar</button>
+                    </div>
 
                     <div x-show="decrypted" x-cloak class="rounded-md bg-emerald-50 p-3 text-sm text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
                         <p class="font-semibold">Texto descifrado:</p>

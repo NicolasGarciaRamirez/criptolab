@@ -10,6 +10,27 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @include('crypto.partials.subnav')
+
+            <x-lab-guide
+                how="Las llaves públicas se muestran y las privadas se guardan cifradas con la llave maestra; el listado nunca devuelve la privada."
+                title="Mis llaves"
+                objective="Consultar y descargar llaves públicas guardadas, sin exponer las privadas."
+                :steps="[
+                    'Genera un par en el laboratorio asimétrico o importa un PEM.',
+                    'Marca guardar para almacenar la privada cifrada con la llave maestra.',
+                    'Descarga la llave pública desde esta tabla.',
+                    'Elimina solo si estás seguro: las entradas de la demo que usen esa llave dejarán de descifrarse.',
+                ]"
+                :expected="[
+                    'La tabla muestra algoritmo, huella y fecha.',
+                    'La llave privada no se muestra después de generada.',
+                    'La descarga pública está limitada al propietario.',
+                ]"
+                teacher="Evalúa que el estudiante entienda por qué la llave privada no se vuelve a mostrar y qué implica eliminarla."
+                warning="Eliminar una llave puede romper registros de demostración existentes."
+            />
+
             @if (session('status'))
                 <div class="rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
                     {{ session('status') }}

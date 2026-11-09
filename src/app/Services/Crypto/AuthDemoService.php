@@ -106,6 +106,20 @@ final class AuthDemoService
         ];
     }
 
+    public function reencrypt(CryptoDemoEntry $entry): CryptoDemoEntry
+    {
+        $plain = $this->decrypt($entry);
+        $entry->loadMissing('user');
+
+        return $this->create($entry->user, [
+            'username' => $plain['username'],
+            'password' => $plain['password'],
+            'sym_algorithm' => $entry->sym_algorithm,
+            'asym_algorithm' => $entry->asym_algorithm,
+            'swap' => (bool) ($entry->meta['swap'] ?? false),
+        ]);
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
